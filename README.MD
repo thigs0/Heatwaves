@@ -18,7 +18,7 @@ The paramns are:
 **The images are saved ar directory "imagens" and the data are saved in directory "dados"**
 
 ## ./dados
-	Heatwave.csv é o arquivo com as ondas de calor anual
+1. Heatwave.csv is the file with annual heatwaves
 	Heatwaves_days.csv é o arquivo com maior período contínuo de ondas de calor 
 	Heatwaves_complete.csv é o arquivo com cada dia, 1 se teve onda de calor nos próximos 3 dias, 0 se não
 	season.csv é o arquivo com ondas de calor por estação, 1 de Nov-Fev, 2 de Mar-Mai, 3 de Jun-Ago, 4 Set-Nov
