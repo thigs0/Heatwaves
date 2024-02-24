@@ -9,15 +9,15 @@ All conected by *BASH* and running in Linux systems.
 
 The paramns are:
 
-1) é o netcdf de temperatura máxima completo
-2) é o ano que a partir dele calculamos o índice
-3) é o percentil de temperatura que queremos calcular
-4) são os dias que usamos como janela
-5) é o netcdf de precipitação diária 
+1) it's the daily maximum temperature netcdf file complete
+2) it's the year that start the calculation of index
+3) it's the percentil that is used in temperature relative calculations
+4) it's number of days that are used like window calculation
+5) it's the daily precipitation netcdf file 
 
-As imagens são salvas na pasta de imagens e os dados são salvos na pasta dados
+**The images are saved ar directory "imagens" and the data are saved in directory "dados"**
 
-./dados :
+## ./dados
 	Heatwave.csv é o arquivo com as ondas de calor anual
 	Heatwaves_days.csv é o arquivo com maior período contínuo de ondas de calor 
 	Heatwaves_complete.csv é o arquivo com cada dia, 1 se teve onda de calor nos próximos 3 dias, 0 se não
@@ -25,7 +25,7 @@ As imagens são salvas na pasta de imagens e os dados são salvos na pasta dados
 	kendall.csv é o arquivo com valores das ondas de calor para o teste de Mann-kendall
 
 
-./intern :
+## ./intern
 	spi.py Usa o arquivo de precipitação para calcular o SPI
 	HeatWave.py Calcula e salva as ondas de calor por ano, estação e prolongamento
 	geirinhas.py Calcula os índices extremos com base na metodologia do gueirinhas
