@@ -5,7 +5,7 @@ All conected by *BASH* and running in Linux systems.
 
 ## To run the code
 
-´´´./extremos.sh tmax.nc 1990 90 15 pr.nc´´´
+	./extremos.sh tmax.nc 1990 90 15 pr.nc
 
 The paramns are:
 
