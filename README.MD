@@ -19,17 +19,17 @@ The paramns are:
 
 ## ./dados
 1. Heatwave.csv is the file with annual heatwaves
-	Heatwaves_days.csv é o arquivo com maior período contínuo de ondas de calor 
-	Heatwaves_complete.csv é o arquivo com cada dia, 1 se teve onda de calor nos próximos 3 dias, 0 se não
-	season.csv é o arquivo com ondas de calor por estação, 1 de Nov-Fev, 2 de Mar-Mai, 3 de Jun-Ago, 4 Set-Nov
-	kendall.csv é o arquivo com valores das ondas de calor para o teste de Mann-kendall
+2. Heatwaves_days.csv is the file with the maximum continum period of heatwave 
+3. Heatwaves_complete.csv is the file that say the dayly period of heatwaves. 0 don't have heatwave, 1 have heatwaves next 3 days
+4. season.csv if the file with daily heatwave, but separete by season, colum:1 of Nov-Fev, colum:2 of Mar-Mai, colum:3 of Jun-Ago, colum:4 of Set-Nov
+5. kendall.csv is the file with heatwaves values for  mann-Kendall test and linear regression
 
 
 ## ./intern
-	spi.py Usa o arquivo de precipitação para calcular o SPI
-	HeatWave.py Calcula e salva as ondas de calor por ano, estação e prolongamento
-	geirinhas.py Calcula os índices extremos com base na metodologia do gueirinhas
-	linear.py Calcula as linhas lineares de tendência da heatweve e contínua
-	linear_season.py Calcula as linhas lineares de tendência da heatwave das estações
-	plot_spi.py controi o gráfico do spi em html 
+1. spi.py use the precipitaion to calculate the spi index
+2. HeatWave.py calculate the heatwave by year, season and extention
+3. geirinhas.py calculate the index based at gueirinhas metodology
+4. linear.py calculate the linear regresion and Mann-Kendall test for heatwaves
+5. linear_season.py calculate linear regression and Mann-Kendall test  for season heatwaves
+6. plot_spi.py create the graph of spi in html 
 
