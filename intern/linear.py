@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore")
 
 hw = pd.read_csv("Heatwave.csv") #abre as ondas de calor
 hw_day = pd.read_csv("Heatwaves_days.csv") #abre os períodos da onda de calor

@@ -14,6 +14,8 @@ import numpy as np
 import datetime
 import pandas as pd
 import sys
+import warnings
+warnings.filterwarnings("ignore")
 
 def main(tmax, spi_param, nome):
     #t é o nc de teperatura que iremos avaliar

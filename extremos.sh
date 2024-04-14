@@ -20,11 +20,10 @@ function Percentil(){
 
 	#Encontramos o período de anos do arquivo
 	year="$(cdo -S showyear $1 | head -n 4)"; year=($year);
-	ymin=(${year[0]}); ymax=(${year[-1]})
-	cdo selyear,${ymin}/${2} $1 tmax_ref.nc
-	cdo selyear,$(($2+1))/${ymax} $1 tmax_f.nc #O arquivo nc com as temperatpuros no período que avaliamos
-	cdo selyear,${ymin}/${2} $5 pr_ref.nc
-
+	ymin=(${year[0]}); ymax=(${year[-1]});
+	cdo selyear,${ymin}/${2} $1 tmax_ref.nc;
+	cdo selyear,$(($2+1))/${ymax} $1 tmax_f.nc; #O arquivo nc com as temperatpuros no período que avaliamos
+	cdo selyear,${ymin}/${2} $5 pr_ref.nc;
 	#Calcula o percentiu do período de referência
 	cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percent.nc
 	rm tmax_ref.nc
@@ -52,15 +51,16 @@ function percentagem(){
 	div=$((dif/soma))
 	
 }
-Percentil $1 $(($2-1)) $3 $4 $5
+Percentil $1 $(($2-1)) $3 $4 $5 >> /dev/null
 spi=$(SPI $5)
 
-echo $(python3 intern/geirinhas.py tmax_f.nc -0.5 cdh_-05.csv)
+python3 intern/geirinhas.py tmax_f.nc -0.5 cdh_-05.csv
 python3 intern/HeatWave.py tmax_f.nc #Gera os dados de heatwave
 python3 intern/plot_spi.py #gera os dados de spi
 
 #Gera regressão linear e teste de tendência
 python3 intern/linear.py 
+python3 intern/linear_season.py 
 
 #Organiza em pastas
 mkdir imagens
