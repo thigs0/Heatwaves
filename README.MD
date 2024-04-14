@@ -67,9 +67,17 @@ When we consider the contius períod with heatwaves
 	width="500"
 	hight="350">
 
-Separete by season:
+<img src="./imagens/Heatwave_reta.png"
+	width="500"
+	hight="350">
 
-<img src="./imagens/season.png">
+<img src="./imagens/season.png"
+	width="500"
+	hight="350">
+
+<img src="./imagens/season_linear.png"
+	width="500"
+	hight="350">
 
 When we consider the CDH index:
 <img src="./imagens/cdh.png">
