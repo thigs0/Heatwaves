@@ -44,9 +44,17 @@ Xavier, A. C., Scanlon, B. R., King, C. W., & Alves, A. I. (2022). <a href="http
 
 ## Example
 The Heatwaves graph is:
+<div class="block">
 <img src="./imagens/Heatwave.png"
 	width="500"
     height="350">
+</div>
+
+<div class="block">
+<img src="./imagens/heatwave_season_day.png"
+	width="500"
+    height="350">
+</div>
 
 When we consider the contius períod with heatwaves
 
@@ -60,3 +68,9 @@ Separete by season:
 
 When we consider the CDH index:
 <img src="./imagens/cdh.png">
+
+<style>
+	div.block{
+		width: 150px;
+		display: inline-block;}
+</style>
