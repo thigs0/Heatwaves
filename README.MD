@@ -44,17 +44,22 @@ Xavier, A. C., Scanlon, B. R., King, C. W., & Alves, A. I. (2022). <a href="http
 
 ## Example
 The Heatwaves graph is:
-<div class="block">
 <img src="./imagens/Heatwave.png"
 	width="500"
     height="350">
-</div>
 
-<div class="block">
-<img src="./imagens/heatwave_season_day.png"
+<img src="./imagens/Heatwave_day_linear_reg.png"
+	width="500"
+	height="350">
+
+<img src="./imagen/season_heatwave.png"
 	width="500"
     height="350">
-</div>
+
+<img src="./imagens/season_heatwave_linear"
+	width="500"
+    height="350">
+
 
 When we consider the contius períod with heatwaves
 

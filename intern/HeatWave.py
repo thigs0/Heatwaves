@@ -12,6 +12,32 @@ import sys
 import warnings
 warnings.filterwarnings("ignore")
 
+def Season_heatwave(df:pd.DataFrame)->None:
+    """Recebe um dataframe com 1 se o dia teve onda de calor e 0 se não. Assim criar um novo dataframe com as ondas d calor
+    separadas por estação"""
+    hw = pd.DataFrame(columns=["time","1","2","3","4"]) #dataframe com resultados
+    hw["time"] = np.arange(df["time"][0].year, df["time"][len(df)-1].year+1) # each year
+    
+    for i,j in enumerate(hw["time"][:]):
+        #dez jan fev
+        t = df[((df["time"].dt.year == j-1)&(df["time"].dt.month==12)|(df["time"].dt.year==j)&(df["time"].dt.month <= 2))] #data avaliada
+        hw["1"][i] = np.sum(t["cdh"])
+
+        #mar abril maio
+        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=3)&(df["time"].dt.month <= 5)) ]
+        hw["2"][i] = np.sum(t["cdh"])
+
+        #jun jul ago
+        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=6)&(df["time"].dt.month <= 8)) ]
+        hw["3"][i] = np.sum(t["cdh"])
+
+        #set out nov
+        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=9)&(df["time"].dt.month <= 11)) ]
+        hw["4"][i] = np.sum(t["cdh"])
+
+    
+    hw.to_csv("season_heatwave.csv")
+
 def main(tmax):
     #tmax é o nc de teperatura que iremos avaliar
     tmax = xr.open_dataset(tmax)
@@ -61,7 +87,7 @@ def main(tmax):
                 hw_cont[k] = c
             i += 1
 
-    #Para sazonalidade 
+    #Para sazonalidade contínua
     for k, y in enumerate(years):
         if k != 0 :
             date = tmax.tmax.values[ (
@@ -121,6 +147,12 @@ def main(tmax):
     df["3"] = season[2][years > 1990]
     df["4"] = season[3][years > 1990]
     df.to_csv("season.csv")
+    
+    df = pd.read_csv("Heatwaves_complete.csv")
+    df["time"] = pd.to_datetime(df["time"])
+    df = df[ df["time"].dt.year >= 1991 ]
+    Season_heatwave(df)
+
 if __name__ == "__main__":
     parametro1 = sys.argv[1]
 
