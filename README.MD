@@ -52,7 +52,7 @@ The Heatwaves graph is:
 	width="500"
 	height="350">
 
-<img src="./imagen/season_heatwave.png"
+<img src="./imagens/season_heatwave.png"
 	width="500"
     height="350">
 
