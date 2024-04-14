@@ -18,11 +18,12 @@ The paramns are:
 **The images are saved ar directory "imagens" and the data are saved in directory "dados"**
 
 ## ./dados
-1. Heatwave.csv is the file with annual heatwaves
-2. Heatwaves_days.csv is the file with the maximum continum period of heatwave 
-3. Heatwaves_complete.csv is the file that say the dayly period of heatwaves. 0 don't have heatwave, 1 have heatwaves next 3 days
-4. season.csv if the file with daily heatwave, but separete by season, colum:1 of Nov-Fev, colum:2 of Mar-Mai, colum:3 of Jun-Ago, colum:4 of Set-Nov
-5. kendall.csv is the file with heatwaves values for  mann-Kendall test and linear regression
+1. <b> Heatwave.csv </b> is the file with annual heatwaves
+2. <b> Heatwaves_days.csv </b> is the file with the maximum continum period of heatwave 
+3. <b> Heatwaves_complete.csv </b> is the file that say the dayly period of heatwaves. 0 don't have heatwave, 1 have heatwaves next 3 days
+4. <b> season.csv </b> if the file with daily heatwave, but separete by season, colum:1 of Nov-Fev, colum:2 of Mar-Mai, colum:3 of Jun-Ago, colum:4 of Set-Nov
+5. <b> season_heatwave.csv </b> is the heatwaves separate by season, colum:1 of Nov-Fev, colum:2 of Mar-Mai, colum:3 of Jun-Ago, colum:4 of Set-Nov
+6. <b> kendall.csv </b> is the file with heatwaves values for  mann-Kendall test and linear regression
 
 
 ## ./intern
@@ -31,7 +32,7 @@ The paramns are:
 2. <a href="./intern/HeatWave.py">HeatWave.py</a>  calculate the heatwave by year, season and extention
 3. <a href="./intern/geirinhas.py">geirinhas.py</a>  calculate the index based at gueirinhas metodology
 4. <a href="./intern/linear.py">linear.py</a> calculate the linear regresion and Mann-Kendall test for heatwaves
-5. <a href="./intern/linear_season.py">linear_season.py</a> calculate linear regression and Mann-Kendall test  for season heatwaves
+5. <a href="./intern/linear_season.py">linear_season.py</a> calculate linear regression and Mann-Kendall test  for season heatwaves and continum heatwaves
 6. <a href="./intern/plot_spi.py">plot_spi.py</a> create the graph of spi in html 
 
 ## Reference

@@ -8,6 +8,8 @@ import datetime
 import pandas as pd
 import sys
 import xclim
+import warnings
+warnings.filterwarnings("ignore")
 
 def main(pr):
     #pr é o netcdf de precipitação completo

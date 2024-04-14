@@ -30,7 +30,7 @@ plt.style.use('ggplot')
 figManager = plt.get_current_fig_manager()
 
 fig, ax = plt.subplots(figsize=(16, 9))
-df = pd.read_csv("Heatwave.csv")
+df = pd.read_csv("dados/Heatwave.csv")
 ax.plot(df["time"], df["HeatWave"])
 ax.set_ylabel("Ondas de calor")
 ax.set_xlabel("Anos")
@@ -55,7 +55,7 @@ plt.close()
 
 
 plt.style.use('ggplot')
-df_05 = pd.read_csv("cdh_-05.csv")
+df_05 = pd.read_csv("dados/cdh_-05.csv")
 df = pd.read_csv("Heatwave.csv")
 df_05["time"] = pd.to_datetime(df_05["time"])
 
@@ -130,8 +130,6 @@ axs[1,0].plot(t, cdh_3, color="b",label="Jun, Jul, Ago")
 axs[1,0].legend()
 axs[1,0].set_ylim([-1,15])
 
-print(cdh_4)
-print(t)
 axs[1,1].plot(t, cdh_4, color="b",label="Set, Out, Nov")
 axs[1,1].legend()
 axs[1,1].set_ylim([-1,15])
