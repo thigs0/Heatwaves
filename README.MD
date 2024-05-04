@@ -34,6 +34,7 @@ The paramns are:
 4. <a href="./intern/linear.py">linear.py</a> calculate the linear regresion and Mann-Kendall test for heatwaves
 5. <a href="./intern/linear_season.py">linear_season.py</a> calculate linear regression and Mann-Kendall test  for season heatwaves and continum heatwaves
 6. <a href="./intern/plot_spi.py">plot_spi.py</a> create the graph of spi in html 
+7 .<a href="./intern/txttonetcdf.py"> txttonetcdf.py </a> if the file is csv file, convert to netcdf
 
 ## Reference
 Geirinhas, João & Russo, Ana & Libonati, Renata & Sousa, Pedro & Miralles, Diego & Trigo, Ricardo. (2021). <a href="https://iopscience.iop.org/article/10.1088/1748-9326/abe0eb">Recent increasing frequency of compound summer drought and heatwaves in Southeast Brazil. Environmental Research Letters</a>. 16. 10.1088/1748-9326/abe0eb. 
