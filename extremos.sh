@@ -8,6 +8,7 @@
 
 #Tendo um arquivo netcdf4 com as datas completas chamada df.nc,
 #Com apenas uma variável de clima
+#Se o arquivo passadofor txt, convertemos para netcdf
 
 function Percentil(){
 	#1 é o netcdf4 de temperatura máxima
@@ -51,6 +52,22 @@ function percentagem(){
 	div=$((dif/soma))
 	
 }
+
+function ConvetTxtToNetcdf(){
+	file="${1##*.}"
+	if [ "$file" == "csv" ]; then
+		python3 intern/txttonetcdf.py $1
+	fi
+
+	file="${5##*.}"
+	if [ "$file" == "csv" ]; then
+		python3 intern/txttonetcdf.py $5
+	fi
+}
+
+ConvetTxtToNetcdf $1
+ConvetTxtToNetcdf $5
+
 Percentil $1 $(($2-1)) $3 $4 $5 >> /dev/null
 spi=$(SPI $5)
 
@@ -70,5 +87,3 @@ mv *.csv dados
 
 # Calculo do percentual
 rm pr_ref.nc percent.nc tmax_f.nc
-
-
