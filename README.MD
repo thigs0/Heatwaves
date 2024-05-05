@@ -29,7 +29,7 @@ The paramns are:
 ## ./intern
 1. <a href="./intern/spi.py"> spy.py</a> use the precipitaion to calculate the spi index
 
-2. <a href="./intern/HeatWave.py">HeatWave.py</a>  calculate the heatwave by year, season and extention
+2. <a href="./intern/HeatWave.py">HeatWave.py</a>  calculate the heatwave by year, season and extention considering World Meteorogical Organization definition of Heatwave
 3. <a href="./intern/geirinhas.py">geirinhas.py</a>  calculate the index based at gueirinhas metodology
 4. <a href="./intern/linear.py">linear.py</a> calculate the linear regresion and Mann-Kendall test for heatwaves
 5. <a href="./intern/linear_season.py">linear_season.py</a> calculate linear regression and Mann-Kendall test  for season heatwaves and continum heatwaves

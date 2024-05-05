@@ -38,11 +38,13 @@ def Season_heatwave(df:pd.DataFrame)->None:
     
     hw.to_csv("season_heatwave.csv")
 
-def main(tmax):
+def main(tmax, tmin):
     #tmax é o nc de teperatura que iremos avaliar
     tmax = xr.open_dataset(tmax)
+    tmin = xr.open_dataset(tmax)
     time = pd.to_datetime(tmax.time.values)
-    percent = xr.open_dataset("percent.nc")
+    percentmax = xr.open_dataset("percent.nc")
+    percentmin = xr.open_dataset("percent.nc")
 
     i = 0
     n = len(tmax.time.values)
@@ -62,8 +64,9 @@ def main(tmax):
         else:
             for k in range(3): 
                 x = time[i] + pd.DateOffset(day=k)
-                y = percent.tmax.values[ ((percent.time.dt.month == x.month) & (percent.time.dt.day == x.day)) ].flatten() #valor do percentil no dia
-                tpercent += y < tmax.tmax.values[i+k] #compara o percentil dos três dias
+                ymax = percent.tmax.values[ ((percent.time.dt.month == x.month) & (percent.time.dt.day == x.day)) ].flatten() #valor do percentil no dia
+                ymin = percent.tmin.values[ ((percent.time.dt.month == x.month) & (percent.time.dt.day == x.day)) ].flatten() #valor do percentil no dia
+                tpercent += ((ymax < tmax.tmax.values[i+k]) & (ymin < tmin.tmin.values[i+k] )) #compara o percentil dos três dias max e min
             if tpercent == 3: #Se todos os 3 dias estão acima do percentil
                 r[i] = 1
                 i+=3
@@ -76,11 +79,12 @@ def main(tmax):
     
     #Para cada ano, calcula a quantidade de ondas de calor
     for k, y in enumerate(years):
-        date = tmax.tmax.values[ time.year == y ] #todos as datas do ano y
+        datemax = tmax.tmax.values[ time.year == y ] #todos as datas do ano y
+        datemin = tmin.tmin.values[ time.year == y ] #todos as datas do ano y
         i=0
         while i < date.size: #percorre os dias do ano y
             c=0
-            while i < date.size and date[i] > percent.tmax.values[i]: # Enquanto o arquivo tem dados e temos uma onda de calor
+            while i < date.size and datemax[i] > percent.tmax.values[i] and datemin[i] > percent.tmin.values[i]: # Enquanto o arquivo tem dados e temos uma onda de calor
                 c+=1 #é um dia com heatwave
                 i+=1 #pula um dia
             if c > hw_cont[k]: # se a onda atual é maior que a anterior para o mesmo ano
@@ -90,7 +94,12 @@ def main(tmax):
     #Para sazonalidade contínua
     for k, y in enumerate(years):
         if k != 0 :
-            date = tmax.tmax.values[ (
+            datemin = tmin.tmin.values[ (
+                (time.year == y-1) & (time.month == 12) |
+                (time.year == y) & (time.month ==1) |
+                (time.year == y) & (time.month ==2)
+            ) ].flatten() #todos as datas do ano y
+            datemax = tmax.tmax.values[ (
                 (time.year == y-1) & (time.month == 12) |
                 (time.year == y) & (time.month ==1) |
                 (time.year == y) & (time.month ==2)
@@ -99,7 +108,7 @@ def main(tmax):
 
             while i < date.size: #percorre os dias do ano y
                 c=0
-                while i < date.size and date[i] > percent.tmax.values[i]: # Enquanto o arquivo tem dados e temos uma onda de calor
+                while i < date.size and datemax[i] > percent.tmax.values[i] and datemin[i] > percent.tmin.values[i]: # Enquanto o arquivo tem dados e temos uma onda de calor
                     c+=1 #é um dia com heatwave
                     i+=1 #pula um dia
                 if c > season[0][k]: # se a onda atual é maior que a anterior para o mesmo ano
@@ -108,16 +117,21 @@ def main(tmax):
 
 
         for zi, z in enumerate((3,6,9)):
-            date = tmax.tmax.values[ (
+            datemax = tmax.tmax.values[ (
                 (time.year == y-1) & (time.month ==z) |
                 (time.year == y) & (time.month ==z+1) |
                 (time.year == y) & (time.month == z+2)
+            ) ].flatten() #todos as datas do ano y
+            datemin = tmin.tmin.values[ (
+                (time.year == y-1) & (time.month == 12) |
+                (time.year == y) & (time.month ==1) |
+                (time.year == y) & (time.month ==2)
             ) ].flatten() #todos as datas do ano y
             i=0
 
             while i < date.size: #percorre os dias do ano y
                 c=0
-                while i < date.size and date[i] > percent.tmax.values[i]: # Enquanto o arquivo tem dados e temos uma onda de calor
+                while i < date.size and datemax[i] > percent.tmax.values[i] and datemin[i] > percent.tmin.values: # Enquanto o arquivo tem dados e temos uma onda de calor
                     c+=1 #é um dia com heatwave
                     i+=1 #pula um dia
                 if c > season[zi+1][k]: # se a onda atual é maior que a anterior para o mesmo ano
