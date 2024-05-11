@@ -43,8 +43,7 @@ def main(tmax, tmin):
     tmax = xr.open_dataset(tmax)
     tmin = xr.open_dataset(tmax)
     time = pd.to_datetime(tmax.time.values)
-    percentmax = xr.open_dataset("percent.nc")
-    percentmin = xr.open_dataset("percent.nc")
+    percent = xr.open_dataset("percent.nc")
 
     i = 0
     n = len(tmax.time.values)

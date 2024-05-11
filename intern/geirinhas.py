@@ -6,7 +6,7 @@ Este código pega o percentil de temperatura de referência e o índice de preci
 #Temos:
 #percent.nc com o percentil 90 de cada dia do ano
 #spi.nc é o maior valor de SPI para cada mês do ano
-#pr.nc é o período que avaliamos a onda de calor mas com precipitação
+#pr.nc é o período que avaliamos a onda de calor com precipitação
 
 
 import xarray as xr
