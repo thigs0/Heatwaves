@@ -12,6 +12,15 @@ import sys
 import warnings
 warnings.filterwarnings("ignore")
 
+def heatwave_Dataset(ds:xr:Dataset):
+    historical = ds.sel(time=np.) #Filtra os dados < 1991 e > 1961
+    data = ds.sel(time=np.) #Filtra o restante dos dados
+
+    hw = xr.Dataset()
+    for i in data.time.values:
+        #Concatena a comparação do dado com a referencia
+        pass
+
 def Season_heatwave(df:pd.DataFrame)->None:
     """Recebe um dataframe com 1 se o dia teve onda de calor e 0 se não. Assim criar um novo dataframe com as ondas d calor
     separadas por estação"""

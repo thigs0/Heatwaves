@@ -71,8 +71,19 @@ ConvetTxtToNetcdf $5
 Percentil $1 $(($2-1)) $3 $4 $5 >> /dev/null
 spi=$(SPI $5)
 
-python3 intern/geirinhas.py tmax_f.nc -0.5 cdh_-05.csv
-python3 intern/HeatWave.py tmax_f.nc #Gera os dados de heatwave
+r=read -p "Wich heatwave definition you will considerate?
+		1 -> Consider the OMM definition of heatwve
+		2 -> Consider the OMM definition with mininum temperature
+		3 -> Consider the Gueirinhas definition and request precipitation file"
+if [ r == "1" ]
+then
+	python3 intern/HeatWave.py tmax_f.nc #Gera os dados de heatwave 
+else if [ r == "2" ]
+	python3 intern/tmaxmin.py tmax_f.nc tmin_f.nc # gera dados considerando max e min
+else if [ r == "3" ]
+	python3 intern/geirinhas.py tmax_f.nc -0.5 cdh_-05.csv # Gera dados considerando max e precipitação
+fi
+
 python3 intern/plot_spi.py #gera os dados de spi
 
 #Gera regressão linear e teste de tendência
@@ -85,5 +96,5 @@ mv *.png imagens
 mkdir dados
 mv *.csv dados
 
-# Calculo do percentual
+#Remome trash data
 rm pr_ref.nc percent.nc tmax_f.nc

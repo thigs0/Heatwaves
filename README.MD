@@ -83,6 +83,15 @@ When we consider the contius períod with heatwaves
 When we consider the CDH index:
 <img src="./imagens/cdh.png">
 
+<br>
+
+<h2> To-Do </h2>
+<ul>
+	<li> Calculate intensity for each heatwave </li>
+	<li> Avalie the hiperparams of choice methods </li>
+	<li> Avalie the SPI code and the results to create the best plot</li>
+	<li> Consider the graph options to publish </li>
+</ul>
 <style>
 	div.block{
 		width: 150px;
