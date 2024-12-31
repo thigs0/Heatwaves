@@ -43,6 +43,9 @@ Geirinhas, João & Russo, Ana & Libonati, Renata & Sousa, Pedro & Miralles, Dieg
 
 Xavier, A. C., Scanlon, B. R., King, C. W., & Alves, A. I. (2022). <a href="https://github.com/AlexandreCandidoXavier/BR-DWGD">New improved Brazilian daily weather gridded data (1961–2020) </a>. International Journal of Climatology, 42(16), 8390– 8404. https://doi.org/10.1002/joc.7731
 
+<p>Intense Heat Wave</p>
+John R. Nairn 1,* and Robert J. B. Fawcett. (2013). <a href="https://www.researchgate.net/publication/270292252_The_Excess_Heat_Factor_A_Metric_for_Heatwave_Intensity_and_Its_Use_in_Classifying_Heatwave_Severity">The Excess Heat Factor: A Metric for Heatwave Intensity and Its Use in Classifying Heatwave Severity </a>. International Journal of Environmental Research and Public Health (IJERPH)
+
 ## Example
 The Heatwaves graph is:
 <img src="./imagens/Heatwave.png"
