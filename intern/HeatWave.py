@@ -12,9 +12,9 @@ import sys
 import warnings
 warnings.filterwarnings("ignore")
 
-def heatwave_Dataset(ds:xr:Dataset):
-    historical = ds.sel(time=np.) #Filtra os dados < 1991 e > 1961
-    data = ds.sel(time=np.) #Filtra o restante dos dados
+def heatwave_Dataset(ds:xr.Dataset):
+    historical = ds.sel(time = ds.time[ ((ds.time.dt.year > 1961) )&(ds.dt.time <1991) ] ) #Filtra os dados < 1991 e > 1961
+    data = ds.sel(time = ds.time[ ds.time.dt.year >=1991 ]) #Filtra o restante dos dados
 
     hw = xr.Dataset()
     for i in data.time.values:
@@ -50,13 +50,15 @@ def Season_heatwave(df:pd.DataFrame)->None:
 def main(tmax):
     #tmax é o nc de teperatura que iremos avaliar
     tmax = xr.open_dataset(tmax)
+    tmax = tmax.sel(time = tmax.time[tmax.time.dt.year > 1990])
     time = pd.to_datetime(tmax.time.values)
     percent = xr.open_dataset("percent.nc")
 
     i = 0
     n = len(tmax.time.values)
     r = np.zeros(n) #1 se é um dia de início de onda de calor, 0 se não
-    years = np.arange( time.year[0], time.year[n-1]+1 )
+    years = np.arange( tmax.time.dt.year[0].to_numpy().item(), tmax.time.dt.year[-1].to_numpy().item()+1 )
+    print(years)
     hw = np.zeros(years.size) #Will save the heatwave
     season = np.zeros((4, years.size))
     hw_cont = np.zeros(years.size)

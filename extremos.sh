@@ -25,6 +25,7 @@ function Percentil(){
 	cdo selyear,${ymin}/${2} $1 tmax_ref.nc;
 	cdo selyear,$(($2+1))/${ymax} $1 tmax_f.nc; #O arquivo nc com as temperatpuros no período que avaliamos
 	cdo selyear,${ymin}/${2} $5 pr_ref.nc;
+	
 	#Calcula o percentiu do período de referência
 	cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percent.nc
 	rm tmax_ref.nc
@@ -32,7 +33,7 @@ function Percentil(){
 
 function SPI(){
 	#1 é o netcdf de precipitação diária
-	python3 intern/spi.py $1  #Calcula o índice spi e salva em spi.nc
+	python3 intern/spi.py $5  #Calcula o índice spi e salva em spi.nc
 }
 
 function percentagem(){
@@ -53,48 +54,41 @@ function percentagem(){
 	
 }
 
-function ConvetTxtToNetcdf(){
-	file="${1##*.}"
-	if [ "$file" == "csv" ]; then
-		python3 intern/txttonetcdf.py $1
-	fi
-
-	file="${5##*.}"
-	if [ "$file" == "csv" ]; then
-		python3 intern/txttonetcdf.py $5
-	fi
-}
-
-ConvetTxtToNetcdf $1
-ConvetTxtToNetcdf $5
 
 Percentil $1 $(($2-1)) $3 $4 $5 >> /dev/null
 spi=$(SPI $5)
-
-r=read -p "Wich heatwave definition you will considerate?
-		1 -> Consider the OMM definition of heatwve
-		2 -> Consider the OMM definition with mininum temperature
-		3 -> Consider the Gueirinhas definition and request precipitation file"
-if [ r == "1" ]
+r=1
+#r=read -p "Wich heatwave definition you will considerate?
+#		1 -> Consider the OMM definition of heatwve
+#		2 -> Consider the OMM definition with mininum temperature
+#		3 -> Consider the Gueirinhas definition and request precipitation file"
+if [ r == 1 ]
 then
-	python3 intern/HeatWave.py tmax_f.nc #Gera os dados de heatwave 
-else if [ r == "2" ]
-	python3 intern/tmaxmin.py tmax_f.nc tmin_f.nc # gera dados considerando max e min
-else if [ r == "3" ]
-	python3 intern/geirinhas.py tmax_f.nc -0.5 cdh_-05.csv # Gera dados considerando max e precipitação
+	python3 intern/HeatWave.py tmax.nc #Gera os dados de heatwave 
+elif [ r == 2 ]
+then
+	python3 intern/tmaxmin.py tmax.nc tmin_f.nc # gera dados considerando max e min
+elif [ r == 3 ]
+then
+	python3 intern/geirinhas.py tmax.nc -0.5 cdh_-05.csv # Gera dados considerando max e precipitação
 fi
 
-python3 intern/plot_spi.py #gera os dados de spi
+#python3 intern/plot_spi.py #gera os dados de spi
 
 #Gera regressão linear e teste de tendência
 python3 intern/linear.py 
 python3 intern/linear_season.py 
 
 #Organiza em pastas
-mkdir imagens
+if [ ! -d imagens]; then
+	mkdir imagens
+fi
 mv *.png imagens
-mkdir dados
+
+if [ ! -d dados ]; then
+	mkdir dados
+fi
 mv *.csv dados
 
 #Remome trash data
-rm pr_ref.nc percent.nc tmax_f.nc
+#rm pr_ref.nc percent.nc tmax_f.nc

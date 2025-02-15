@@ -2,10 +2,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import xarray as xr
 import numpy as np
-import plotly.graph_objects as go
-import plotly.express as px
-import ipywidgets as widgets
-from scipy.stats import norm
 
 ds = xr.open_dataset("spi.nc")
 spi = ds.__xarray_dataarray_variable__.values[ds.time.dt.year >= 1990]

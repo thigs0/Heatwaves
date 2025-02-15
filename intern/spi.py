@@ -14,8 +14,8 @@ warnings.filterwarnings("ignore")
 def main(pr):
     #pr é o netcdf de precipitação completo
 
-    ds_cal = xr.open_dataset("pr_ref.nc")
     ds = xr.open_dataset(pr) #média multi-year da referência
+    ds_cal = ds.sel(time = ds.time[ ds.time.dt.year<1991 ])
     ds = ds.sortby("time")
     ds_cal = ds_cal.sortby("time")
     ds.pr.attrs['units'] = 'mm/day'
