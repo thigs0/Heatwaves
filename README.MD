@@ -24,6 +24,7 @@ The paramns are:
 4. <b> season.csv </b> if the file with daily heatwave, but separete by season, colum:1 of Nov-Fev, colum:2 of Mar-Mai, colum:3 of Jun-Ago, colum:4 of Set-Nov
 5. <b> season_heatwave.csv </b> is the heatwaves separate by season, colum:1 of Nov-Fev, colum:2 of Mar-Mai, colum:3 of Jun-Ago, colum:4 of Set-Nov
 6. <b> kendall.csv </b> is the file with heatwaves values for  mann-Kendall test and linear regression
+7. <b> input.csv </b> is the file with all data from campinas in txt format the facilite the update
 
 
 ## ./intern
@@ -34,7 +35,7 @@ The paramns are:
 4. <a href="./intern/linear.py">linear.py</a> calculate the linear regresion and Mann-Kendall test for heatwaves
 5. <a href="./intern/linear_season.py">linear_season.py</a> calculate linear regression and Mann-Kendall test  for season heatwaves and continum heatwaves
 6. <a href="./intern/plot_spi.py">plot_spi.py</a> create the graph of spi in html 
-7. <a href="./intern/txttonetcdf.py"> txttonetcdf.py </a> if the file is csv file, convert to netcdf
+7. <a href="./intern/txttonetcdf.py"> txttonetcdf.py </a> open the file in ./dados/input.csv, that can be updated with excel and after to convert to netcdf
 
 ## Reference
 Geirinhas, João & Russo, Ana & Libonati, Renata & Sousa, Pedro & Miralles, Diego & Trigo, Ricardo. (2021). <a href="https://iopscience.iop.org/article/10.1088/1748-9326/abe0eb">Recent increasing frequency of compound summer drought and heatwaves in Southeast Brazil. Environmental Research Letters</a>. 16. 10.1088/1748-9326/abe0eb. 

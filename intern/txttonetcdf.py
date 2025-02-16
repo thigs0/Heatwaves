@@ -15,7 +15,7 @@ def main():
         out = df.drop(columns=df.columns[ df.columns != j ])
         ds = out.to_xarray()
         ds = xr.Dataset(ds)
-        ds.to_netcdf(f"{j}.nc")
+        ds.to_netcdf(f"../{j}.nc")
 
 
 if __name__ == "__main__":
