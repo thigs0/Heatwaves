@@ -5,12 +5,13 @@
 #3 é o percentil de temperatura que queremos calcular
 #4 é o dias que usamos como janela
 #5 é o netcdf de precipitação diária
+#6 é o netcdf da temperatura mínima se quiser ser passado
 
 #Tendo um arquivo netcdf4 com as datas completas chamada df.nc,
 #Com apenas uma variável de clima
 #Se o arquivo passadofor txt, convertemos para netcdf
 
-function Percentil(){
+function Percentil_max(){ # calcula o percentil de uma série temporal de temperatura mínima
 	#1 é o netcdf4 de temperatura máxima
 	#2 ano final de referência
 	#3 é qual o percentil que queremos calcular
@@ -27,7 +28,28 @@ function Percentil(){
 	cdo selyear,${ymin}/${2} $5 pr_ref.nc;
 	
 	#Calcula o percentiu do período de referência
-	cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percent.nc
+	cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmax.nc
+	rm tmax_ref.nc
+}
+
+function Percentil_min(){ # calcula o percentil de uma série temporal de temperatura mínima
+	#1 é o netcdf4 de temperatura mínima
+	#2 ano final de referência
+	#3 é qual o percentil que queremos calcular
+	#4 é o dias que usaremos como janela
+	#5 é o netcdf de precipitação diária
+
+	# Percentil tmax.nc year percentil window 
+
+	#Encontramos o período de anos do arquivo
+	year="$(cdo -S showyear $1 | head -n 4)"; year=($year);
+	ymin=(${year[0]}); ymax=(${year[-1]});
+	cdo selyear,${ymin}/${2} $1 tmax_ref.nc;
+	cdo selyear,$(($2+1))/${ymax} $1 tmax_f.nc; #O arquivo nc com as temperatpuros no período que avaliamos
+	cdo selyear,${ymin}/${2} $5 pr_ref.nc;
+	
+	#Calcula o percentiu do período de referência
+	cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmin.nc
 	rm tmax_ref.nc
 }
 
@@ -55,25 +77,32 @@ function percentagem(){
 }
 
 
-Percentil $1 $(($2-1)) $3 $4 $5 >> /dev/null
-spi=$(SPI $5)
-r=1
-#r=read -p "Wich heatwave definition you will considerate?
-#		1 -> Consider the OMM definition of heatwve
-#		2 -> Consider the OMM definition with mininum temperature
-#		3 -> Consider the Gueirinhas definition and request precipitation file"
-if [ r == 1 ]
+echo "Wich heatwave definition you will considerate?
+		1 -> Consider the OMM definition of heatwve
+		2 -> Consider the OMM definition with mininum temperature
+		3 -> Consider the Gueirinhas definition and request precipitation file"
+read r 
+if [ $r == 1 ]
 then
+	Percentil_max $1 $(($2-1)) $3 $4 $5 >> /dev/null
 	python3 intern/HeatWave.py tmax.nc #Gera os dados de heatwave 
-elif [ r == 2 ]
+elif [ $r == 2 ]
 then
-	python3 intern/tmaxmin.py tmax.nc tmin_f.nc # gera dados considerando max e min
-elif [ r == 3 ]
+	echo "Construindo o percentil da temperatura máxima"
+	Percentil_max $1 $(($2-1)) $3 $4 $5
+	echo "Construindo o percentil da temperatura mínima"
+	Percentil_min $6 $(($2-1)) $3 $4 $5 
+	echo "Gerando os dados de ondas de calor"
+	python3 intern/tmaxmin_heatwave.py tmax.nc tmin_f.nc percentmax.nc percentmin.nc # gera dados considerando max e min
+
+elif [ $r == 3 ]
 then
+	spi=$(SPI $5)
 	python3 intern/geirinhas.py tmax.nc -0.5 cdh_-05.csv # Gera dados considerando max e precipitação
+
+	python3 intern/plot_spi.py #gera os dados de spi
 fi
 
-#python3 intern/plot_spi.py #gera os dados de spi
 
 #Gera regressão linear e teste de tendência
 python3 intern/linear.py 

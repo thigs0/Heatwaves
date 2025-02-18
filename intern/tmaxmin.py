@@ -41,9 +41,10 @@ def Season_heatwave(df:pd.DataFrame)->None:
 def main(tmax, tmin):
     #tmax é o nc de teperatura que iremos avaliar
     tmax = xr.open_dataset(tmax)
-    tmin = xr.open_dataset(tmax)
+    tmin = xr.open_dataset(tmin)
     time = pd.to_datetime(tmax.time.values)
-    percent = xr.open_dataset("percent.nc")
+    percentmax = xr.open_dataset("percent.nc") #need percent of min e max
+    percentmin = xr.open_dataset("percent.nc") #need percent of min e max
 
     i = 0
     n = len(tmax.time.values)
@@ -168,5 +169,6 @@ def main(tmax, tmin):
 
 if __name__ == "__main__":
     parametro1 = sys.argv[1]
+    parametro2 = sys.argv[2]
 
-    main(parametro1)
+    main(parametro1, parametro2)

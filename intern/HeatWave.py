@@ -3,7 +3,7 @@ Calcula as ondas de calor por ano e seus tamanhos.
 salva em um arquivo de saída .csv 
 
 """
-
+from alive_progress import alive_bar
 import xarray as xr
 import numpy as np
 import datetime
@@ -24,19 +24,26 @@ def heatwave_Dataset(ds:xr.Dataset, percent:xr.Dataset) -> pd.DataFrame: #gera u
     #Calculo das ondas de calor
     year = years[0]
 
-    for i,date in enumerate(df['time']):
-        x = data.sel(time=date).tmax
-        y = percent.tmax.values[ ((percent.time.dt.month == date.month) & (percent.time.dt.day == date.day)) ].flatten() #valor do percentil no dia
-        df.loc[i, 'tmax'] = x.to_numpy().item()
-        df.loc[i, 'ref'] = y
-        df.loc[i, 'greater'] = 1 if df.loc[i, 'tmax'] > df.loc[i, 'ref'] else 0
-
+    print('gerando csv com dias mais quentes')
+    with alive_bar( len(df.time) ) as bar:
+        for i,date in enumerate(df['time']):
+            x = data.sel(time=date).tmax
+            y = percent.tmax.values[ ((percent.time.dt.month == date.month) & (percent.time.dt.day == date.day)) ].flatten() #valor do percentil no dia
+            df.loc[i, 'tmax'] = x.to_numpy().item()
+            df.loc[i, 'ref'] = y
+            df.loc[i, 'greater'] = 1 if df.loc[i, 'tmax'] > df.loc[i, 'ref'] else 0
+            bar()
+    print('Gerando csv com as ondas de calor')
     #heatwave
     i = 0
-    while i < len(df.time)-3:
-        df.loc[i, 'heatwave'] = 1 if df.loc[i:i+2, 'greater'].sum() == 3 else 0
-        if df.loc[i, 'heatwave'] == 1:
-            i+=3
+    with alive_bar( len(df.time) ) as bar:
+        while i < len(df.time)-3:
+            df.loc[i, 'heatwave'] = 1 if df.loc[i:i+2, 'greater'].sum() == 3 else 0
+            if df.loc[i, 'heatwave'] == 1:
+                i+=3
+            else:
+                i+=1
+            bar()
 
     return df
 

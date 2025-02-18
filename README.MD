@@ -5,8 +5,9 @@ All conected by *BASH* and running in Linux systems.
 
 ## To run the code
 
-	./extremos.sh tmax.nc 1990 90 15 pr.nc
+	./extremos.sh tmax.nc 1990 90 15 pr.nc [tmin.nc]
 
+the params inside [] are option that need only if the calculus need
 The paramns are:
 
 1) it's the daily maximum temperature netcdf file complete, like (1961-2024)
@@ -14,6 +15,7 @@ The paramns are:
 3) it's the percentil that is used in temperature relative calculations
 4) it's number of days that are used like window calculation
 5) it's the daily precipitation netcdf file, like (1961-2024)
+6) it's the daily minimum temperature netcdf file complete, like (1961-2024)
 
 **The images are saved ar directory "imagens" and the data are saved in directory "dados"**
 
