@@ -5,7 +5,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 hw = pd.read_csv("season.csv") #abre as ondas de calor contínuas
-hw = hw.drop(columns=["Unnamed: 0"])
+hw = pd.read_csv("tmax_ref.csv")
 
 def Linear_reg(df:pd.DataFrame) -> np.array:
     #retorna um vetor com dois parâmetros da regressão linear
@@ -39,8 +39,9 @@ def Mann_Kendall_Test(df:pd.DataFrame):
     return (s, p_value(s)) 
         
 #Gera os gráficos com regressão e salva os dados:
-"""
+
 plt.style.use('ggplot')
+df = hw.copy()
 df = pd.read_csv("season.csv")
 fig, axs = plt.subplots(2, 2)
 
@@ -77,7 +78,7 @@ fig.tight_layout()
 plt.legend()
 plt.savefig("season_linear.png", dpi=300)
 plt.close()
-"""
+
 # Kendall
 with open("season_kendall.csv", "w") as txt:
     p1,p2 = Mann_Kendall_Test(hw[["time", "1"]])

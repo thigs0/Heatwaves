@@ -78,7 +78,7 @@ def main(tmax):
     tmax = xr.open_dataset(tmax)
     tmax = tmax.sel(time = tmax.time[tmax.time.dt.year > 1990])
     time = pd.to_datetime(tmax.time.values)
-    percent = xr.open_dataset("percent.nc")
+    percent = xr.open_dataset("percentmax.nc")
 
     i = 0
     n = len(tmax.time.values)
