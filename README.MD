@@ -1,11 +1,12 @@
 # Description of code and your functions
 
 The code may priorize make all necessary calculations in *Python* and *CDO*.
+For python you will need pandas, numpy, scipy, xarray and alive-progress
 All conected by *BASH* and running in Linux systems. 
 
 ## To run the code
 
-	./extremos.sh tmax.nc 1990 90 15 pr.nc [tmin.nc]
+	./extremos.sh tmax.nc 1990 90 15 [pr.nc] [tmin.nc]
 
 the params inside [] are option that need only if the calculus need
 The paramns are:
@@ -28,15 +29,23 @@ The paramns are:
 6. <b> kendall.csv </b> is the file with heatwaves values for  mann-Kendall test and linear regression
 7. <b> input.csv </b> is the file with all data from campinas in txt format the facilite the update
 
+## ./netcdf
+#1. <b> tmax.nc </b> is the tmax temperatura for one latitude and longitude
+#1. <b> tmin.nc </b> is the tmin temperatura for one latitude and longitude
+#1. <b> pr.nc </b> is the precipitation for one latitude and longitude
 
 ## ./intern
 1. <a href="./intern/spi.py"> spy.py</a> use the precipitaion to calculate the spi index
 
 2. <a href="./intern/HeatWave.py">HeatWave.py</a>  calculate the heatwave by year, season and extention considering World Meteorogical Organization definition of Heatwave
+2. <a href="./intern/tmantmin_heatwave.py">tmaxtmin_heatwave.py</a>  calculate the heatwave by year, season and extention considering World Meteorogical Organization definition of Heatwave using min temperature
 3. <a href="./intern/geirinhas.py">geirinhas.py</a>  calculate the index based at gueirinhas metodology
 4. <a href="./intern/linear.py">linear.py</a> calculate the linear regresion and Mann-Kendall test for heatwaves
 5. <a href="./intern/linear_season.py">linear_season.py</a> calculate linear regression and Mann-Kendall test  for season heatwaves and continum heatwaves
 6. <a href="./intern/plot_spi.py">plot_spi.py</a> create the graph of spi in html 
+6. <a href="./intern/plot_linear_tmaxtmin_heatwave.py">plot_linear_tmaxtmin_heatwave.py</a> create the graph of heatwave of tmaxtmin heatwaves
+6. <a href="./intern/anomaly.py">anomaly.py</a> create the graph of temperature anomaly of each heatwave
+6. <a href="./intern/cumulative_heat.py">cumulative_heat.py</a> calculate the anomaly of temperature for each heatwave
 7. <a href="./intern/txttonetcdf.py"> txttonetcdf.py </a> open the file in ./dados/input.csv, that can be updated with excel and after to convert to netcdf
 
 ## Reference

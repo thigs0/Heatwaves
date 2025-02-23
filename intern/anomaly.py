@@ -10,6 +10,7 @@ df = df.fillna(0)
 years = np.array(df.time.dt.year.unique())
 years = years[ ~np.isnan(years) ]
 
+#constrio
 
 print('construindo gráfico da anomalia')
 c = df[df.cummulative != 0] 

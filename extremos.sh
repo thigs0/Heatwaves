@@ -85,7 +85,10 @@ read r
 if [ $r == 1 ]
 then
 	Percentil_max $1 $(($2-1)) $3 $4 $5 >> /dev/null
-	python3 intern/HeatWave.py tmax.nc #Gera os dados de heatwave 
+	python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave 
+
+	python3 intern/linear.py 
+	python3 intern/linear_season.py 
 elif [ $r == 2 ]
 then
 	echo "Construindo o percentil da temperatura máxima"
@@ -93,23 +96,29 @@ then
 	echo "Construindo o percentil da temperatura mínima"
 	Percentil_min $6 $(($2-1)) $3 $4 $5 
 	echo "Gerando os dados de ondas de calor"
-	python3 intern/tmaxmin_heatwave.py tmax.nc tmin_f.nc percentmax.nc percentmin.nc # gera dados considerando max e min
+	python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # gera dados considerando max e min
+	python3 intern/cumulative_heat.py #gera os dados acumulados de cada onda de calor
+
+	python3 intern/plot_linear_tmaxtmin_heatwave.py
+	#python3 intern/plot_cummulative.py 
+	python3 intern/anomaly.py
+	python3 intern/linear_season.py
+
 
 elif [ $r == 3 ]
 then
 	spi=$(SPI $5)
-	python3 intern/geirinhas.py tmax.nc -0.5 cdh_-05.csv # Gera dados considerando max e precipitação
+	python3 intern/geirinhas.py netcdf/tmax.nc -0.5 cdh_-05.csv # Gera dados considerando max e precipitação
 
 	python3 intern/plot_spi.py #gera os dados de spi
+
 fi
 
 
 #Gera regressão linear e teste de tendência
-python3 intern/linear.py 
-python3 intern/linear_season.py 
 
 #Organiza em pastas
-if [ ! -d imagens]; then
+if [ ! -d imagens ]; then
 	mkdir imagens
 fi
 mv *.png imagens
@@ -120,4 +129,4 @@ fi
 mv *.csv dados
 
 #Remome trash data
-#rm pr_ref.nc percent.nc tmax_f.nc
+rm *.nc
