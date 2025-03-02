@@ -6,7 +6,7 @@ All conected by *BASH* and running in Linux systems.
 
 ## To run the code
 
-	./extremos.sh tmax.nc 1990 90 15 [pr.nc] [tmin.nc]
+	./extremos.sh netcdf/tmax.nc 1990 90 15 [netcdf/pr.nc] [netcdf/tmin.nc]
 
 the params inside [] are option that need only if the calculus need
 The paramns are:
@@ -47,6 +47,7 @@ The paramns are:
 6. <a href="./intern/anomaly.py">anomaly.py</a> create the graph of temperature anomaly of each heatwave
 6. <a href="./intern/cumulative_heat.py">cumulative_heat.py</a> calculate the anomaly of temperature for each heatwave
 7. <a href="./intern/txttonetcdf.py"> txttonetcdf.py </a> open the file in ./dados/input.csv, that can be updated with excel and after to convert to netcdf
+8. <a href="./intern/heatwave3ormore.py"> heatwave3ormore </a> open the file in ./intern/heatwave3ormore.py, that create the heatwave files considering heatwaves when has 3 hotdays using maximum temperature
 
 ## Reference
 Geirinhas, João & Russo, Ana & Libonati, Renata & Sousa, Pedro & Miralles, Diego & Trigo, Ricardo. (2021). <a href="https://iopscience.iop.org/article/10.1088/1748-9326/abe0eb">Recent increasing frequency of compound summer drought and heatwaves in Southeast Brazil. Environmental Research Letters</a>. 16. 10.1088/1748-9326/abe0eb. 
