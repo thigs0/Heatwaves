@@ -86,7 +86,9 @@ echo "Wich heatwave definition you will considerate?
 		1 -> Consider the OMM definition of heatwve
 		2 -> Consider the OMM definition with mininum temperature
 		3 -> Consider the Gueirinhas definition and request precipitation file
-		4 -> Consider 3 hotdays or more to tmax and tmin to define heatwave"
+		4 -> Consider 3 hotdays and tmax to define heatwave
+		5 -> Consider 3 hotdays or more to tmax and tmin to define heatwave"
+
 read r
 if [ $r == 1 ]; then
   Percentil_max $1 $(($2 - 1)) $3 $4 $5 >>/dev/null
@@ -116,11 +118,17 @@ elif [ $r == 3 ]; then
 elif [ $r == 4 ]; then
   echo "Construindo o percentil da temperatura máxima"
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
+  echo "Gerando os dados de ondas de calor"
+
+  python3 intern/heatwave3ormore.py netcdf/tmax.nc ./percentmax.nc # Gera dados considerando max e precipitação
+elif [ $r == 5 ]; then
+  echo "Construindo o percentil da temperatura máxima"
+  Percentil_max $1 $(($2 - 1)) $3 $4 $5
   echo "Construindo o percentil da temperatura mínima"
   Percentil_min $6 $(($2 - 1)) $3 $4 $5
   echo "Gerando os dados de ondas de calor"
 
-  python3 intern/heatwave3ormore.py netcdf/tmax.nc ./percentmax.nc # Gera dados considerando max e precipitação
+  python3 intern/heatwave3ormoretmaxtmin.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Gera dados considerando max e precipitação
 
 fi
 
@@ -138,4 +146,4 @@ fi
 mv *.csv dados
 
 #Remome trash data
-rm *.nc
+#rm *.nc
