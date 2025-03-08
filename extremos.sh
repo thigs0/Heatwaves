@@ -25,12 +25,12 @@ function Percentil_max() { # calcula o percentil de uma série temporal de tempe
   year=($year)
   ymin=(${year[0]})
   ymax=(${year[-1]})
-  cdo selyear,${ymin}/${2} $1 tmax_ref.nc
-  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc #O arquivo nc com as temperatpuros no período que avaliamos
-  cdo selyear,${ymin}/${2} $5 pr_ref.nc
+  cdo selyear,${ymin}/${2} $1 tmax_ref.nc >>/dev/null
+  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null #O arquivo nc com as temperatpuros no período que avaliamos
+  cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
   #Calcula o percentiu do período de referência
-  cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmax.nc
+  cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmax.nc >>/dev/null
   rm tmax_ref.nc
 }
 
@@ -48,12 +48,12 @@ function Percentil_min() { # calcula o percentil de uma série temporal de tempe
   year=($year)
   ymin=(${year[0]})
   ymax=(${year[-1]})
-  cdo selyear,${ymin}/${2} $1 tmax_ref.nc
-  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc #O arquivo nc com as temperatpuros no período que avaliamos
-  cdo selyear,${ymin}/${2} $5 pr_ref.nc
+  cdo selyear,${ymin}/${2} $1 tmax_ref.nc >>/dev/null
+  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null #O arquivo nc com as temperatpuros no período que avaliamos
+  cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
   #Calcula o percentiu do período de referência
-  cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmin.nc
+  cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmin.nc >>/dev/null
   rm tmax_ref.nc
 }
 
@@ -71,10 +71,10 @@ function percentagem() {
   ymin=(${year[0]})
   ymax=(${year[-1]})
 
-  cdo selyear,1980/1998 spi.nc hist.nc
-  cdo sum hist.nc soma_hist.nc
-  cdo selyear,1999/${ymax} $1 ref.nc
-  cdo sum ref.nc soma_ref.nc
+  cdo selyear,1980/1998 spi.nc hist.nc >>/dev/null
+  cdo sum hist.nc soma_hist.nc >>/dev/null
+  cdo selyear,1999/${ymax} $1 ref.nc >>/dev/null
+  cdo sum ref.nc soma_ref.nc >>/dev/null
 
   dif=$((soma_hist.nc - soma_ref.nc))
   soma=$((soma_hist.nc + soma_ref.nc))
@@ -146,4 +146,4 @@ fi
 mv *.csv dados
 
 #Remome trash data
-#rm *.nc
+rm *.nc

@@ -61,22 +61,22 @@ def Season_heatwave(df:pd.DataFrame)->None:
     for i,j in enumerate(hw["time"][:]):
         #dez jan fev
         t = df[((df["time"].dt.year == j-1)&(df["time"].dt.month==12)|(df["time"].dt.year==j)&(df["time"].dt.month <= 2))] #data avaliada
-        hw["1"][i] = np.sum(t["cdh"])
+        hw["1"][i] = np.sum(t["heatwave"])
 
         #mar abril maio
         t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=3)&(df["time"].dt.month <= 5)) ]
-        hw["2"][i] = np.sum(t["cdh"])
+        hw["2"][i] = np.sum(t["heatwave"])
 
         #jun jul ago
         t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=6)&(df["time"].dt.month <= 8)) ]
-        hw["3"][i] = np.sum(t["cdh"])
+        hw["3"][i] = np.sum(t["heatwave"])
 
         #set out nov
         t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=9)&(df["time"].dt.month <= 11)) ]
-        hw["4"][i] = np.sum(t["cdh"])
+        hw["4"][i] = np.sum(t["heatwave"])
 
     
-    hw.to_csv("season_heatwave.csv")
+    hw.to_csv("season_heatwave.csv", index=False)
 
 def main(tmax:xr.Dataset, tmin:xr.Dataset, maxpercent:xr.Dataset, minpercent:xr.Dataset):
     #tmax é o nc de teperatura que iremos avaliar
