@@ -94,8 +94,7 @@ if [ $r == 1 ]; then
   Percentil_max $1 $(($2 - 1)) $3 $4 $5 >>/dev/null
   python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave
 
-  python3 intern/linear.py
-  python3 intern/linear_season.py
+  #python3 intern/linear_season.py
 elif [ $r == 2 ]; then
   echo "Construindo o percentil da temperatura máxima"
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
@@ -105,10 +104,8 @@ elif [ $r == 2 ]; then
   python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # gera dados considerando max e min
   python3 intern/cumulative_heat.py                                                                 #gera os dados acumulados de cada onda de calor
 
-  python3 intern/plot_linear_tmaxtmin_heatwave.py
   #python3 intern/plot_cummulative.py
   python3 intern/anomaly.py
-  python3 intern/linear_season.py
 
 elif [ $r == 3 ]; then
   spi=$(SPI $5)
@@ -133,6 +130,8 @@ elif [ $r == 5 ]; then
 fi
 
 #Gera regressão linear e teste de tendência
+python3 intern/plot.py
+python3 intern/linear_season.py
 
 #Organiza em pastas
 if [ ! -d imagens ]; then

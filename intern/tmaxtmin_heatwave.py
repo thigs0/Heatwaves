@@ -75,7 +75,7 @@ def Season_heatwave(df:pd.DataFrame) -> None:
         hw["4"][i] = np.sum(t["heatwave"])
 
     
-    hw.to_csv("season.csv")
+    hw.to_csv("season_heatwave.csv")
 
 def main(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, percentmin:xr.Dataset):
     #tmax é o nc de teperatura que iremos avaliar
@@ -89,18 +89,13 @@ def main(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, percentmin:xr.
 
     time = pd.to_datetime(tmax.time.values)
 
-    i = 0
-    n = len(tmax.time.values)
-    r = np.zeros(n) #1 se é um dia de início de onda de calor, 0 se não
     years = np.arange( tmax.time.dt.year[0].to_numpy().item(), tmax.time.dt.year[-1].to_numpy().item()+1 )
     print("os seguintes anos estão sendo considerados:")
     print(years)
 
     df = heatwave_Dataset(tmax, tmin,percentmax, percentmin) 
-    df.to_csv("tmax_ref.csv", index=False)
-
-    #create season file
     Season_heatwave(df)
+    df.to_csv("tmax_ref.csv", index=False)
 
 if __name__ == "__main__":
     param1 = sys.argv[1]
