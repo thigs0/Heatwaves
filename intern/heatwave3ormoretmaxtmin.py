@@ -19,7 +19,7 @@ def heatwave_Dataset(max:xr.Dataset, min:xr.Dataset, maxpercent:xr.Dataset, minp
     years = np.arange( max.time.dt.year[0].to_numpy().item(), max.time.dt.year[-1].to_numpy().item()+1 )#
     df = pd.DataFrame()
     df["time"] = max.time #dataframe de saída
-    df[['tmax', 'tmin', 'maxref','minref', 'greater', 'heatwave']] = pd.NA
+    df[['tmax', 'tmin', 'greater', 'heatwave']] = pd.NA
 
     #Calculo das ondas de calor
     year = years[0]
@@ -34,7 +34,7 @@ def heatwave_Dataset(max:xr.Dataset, min:xr.Dataset, maxpercent:xr.Dataset, minp
             df.loc[i, 'tmin'] = xmin.to_numpy().item()
             df.loc[i, 'refmax'] = ymax
             df.loc[i, 'refmin'] = ymin
-            df.loc[i, 'greater'] = 1 if df.loc[i, 'tmax'] > df.loc[i, 'refmin'] and df.loc[i, 'tmin'] > df.loc[i, 'refmax'] else 0
+            df.loc[i, 'greater'] = 1 if df.loc[i, 'tmax'] > df.loc[i, 'refmax'] and df.loc[i, 'tmin'] > df.loc[i, 'refmin'] else 0
             bar()
     print('Gerando csv com as ondas de calor')
     #heatwave
@@ -92,12 +92,10 @@ def main(tmax:xr.Dataset, tmin:xr.Dataset, maxpercent:xr.Dataset, minpercent:xr.
     print("os seguintes anos estão sendo considerados:")
     print(years)
     hw = np.zeros(years.size) #Will save the heatwave
-    season = np.zeros((4, years.size))
-    hw_cont = np.zeros(years.size)
-
-    #Season_heatwave(df)
 
     df = heatwave_Dataset(tmax,tmin, maxpercent, minpercent) 
+    Season_heatwave(df)
+
     df.to_csv("tmax_ref.csv", index=False)
 
 if __name__ == "__main__":

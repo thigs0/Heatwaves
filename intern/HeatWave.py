@@ -35,14 +35,15 @@ def heatwave_Dataset(ds:xr.Dataset, percent:xr.Dataset) -> pd.DataFrame: #gera u
     print('Gerando csv com as ondas de calor')
     #heatwave
     i = 0
-    with alive_bar( len(df.time) ) as bar:
+    with alive_bar( len(df.time)-3 ) as bar:
         while i < len(df.time)-3:
             df.loc[i, 'heatwave'] = 1 if df.loc[i:i+2, 'greater'].sum() == 3 else 0
             if df.loc[i, 'heatwave'] == 1:
                 i+=3
+                bar(3)
             else:
                 i+=1
-            bar()
+                bar()
 
     return df
 

@@ -23,7 +23,7 @@ def main(tmax, spi_param, nome):
     spi = xr.open_dataset("spi.nc")
     spi = spi.rename({"__xarray_dataarray_variable__":"spi"})
     tmax = xr.open_dataset(tmax)
-    percent = xr.open_dataset("percent.nc")
+    percent = xr.open_dataset("maxpercent.nc")
     n = len(tmax.time.values)
     i = y = 0
 
@@ -70,7 +70,7 @@ def main(tmax, spi_param, nome):
                     i += 1
 
     df = pd.DataFrame()
-    df["cdh"] = r
+    df["heatwave"] = r
     df["time"] = time 
     df.to_csv(f"../{nome}")
 
