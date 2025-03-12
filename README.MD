@@ -61,55 +61,10 @@ John R. Nairn 1,* and Robert J. B. Fawcett. (2013). <a href="https://www.researc
 
 ## Example
 The Heatwaves graph is:
-<img src="./imagens/Heatwave.png"
-	width="500"
-    height="350">
 
-<img src="./imagens/Heatwave_day_linear_reg.png"
-	width="500"
-	height="350">
-
-<img src="./imagens/season_heatwave.png"
-	width="500"
-    height="350">
-
-<img src="./imagens/season_heatwave_linear.png"
-	width="500"
-    height="350">
+| Definitions  | Heatwaves by year| Heatwaves by season|
+| ------------- | ------------- |------------- |
+| 3 days with hot days using tmax  | ![./examples/Heatwave_1.png] | ![./examples/season_heatwave_1.png]|
+| 3 days with hot days using tmax and tmin | ![./examples/Heatwave_2.png]  | ![./examples/season_heatwave_2.png]  |
 
 
-When we consider the contius períod with heatwaves
-
-<img src="./imagens/Heatwave_day.png"
-	width="500"
-	hight="350">
-
-<img src="./imagens/Heatwave_reta.png"
-	width="500"
-	hight="350">
-
-<img src="./imagens/season.png"
-	width="500"
-	hight="350">
-
-<img src="./imagens/season_linear.png"
-	width="500"
-	hight="350">
-
-When we consider the CDH index:
-<img src="./imagens/cdh.png">
-
-<br>
-
-<h2> To-Do </h2>
-<ul>
-	<li> Calculate intensity for each heatwave </li>
-	<li> Avalie the hiperparams of choice methods </li>
-	<li> Avalie the SPI code and the results to create the best plot</li>
-	<li> Consider the graph options to publish </li>
-</ul>
-<style>
-	div.block{
-		width: 150px;
-		display: inline-block;}
-</style>
