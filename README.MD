@@ -64,7 +64,7 @@ The Heatwaves graph is:
 
 | Definitions  | Heatwaves by year| Heatwaves by season|
 | ------------- | ------------- |------------- |
-| 3 days with hot days using tmax  | ![./examples/Heatwave_1.png] | ![./examples/season_heatwave_1.png]|
+| 3 days with hot days using tmax  | ![dwefe](./examples/Heatwave_1.png) | ![./examples/season_heatwave_1.png]|
 | 3 days with hot days using tmax and tmin | ![./examples/Heatwave_2.png]  | ![./examples/season_heatwave_2.png]  |
 
 
