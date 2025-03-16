@@ -94,7 +94,6 @@ if [ $r == 1 ]; then
   Percentil_max $1 $(($2 - 1)) $3 $4 $5 >>/dev/null
   python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave
 
-  #python3 intern/linear_season.py
 elif [ $r == 2 ]; then
   echo "Construindo o percentil da temperatura máxima"
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
@@ -110,8 +109,8 @@ elif [ $r == 2 ]; then
 elif [ $r == 3 ]; then
   spi=$(SPI $5)
   python3 intern/geirinhas.py netcdf/tmax.nc -0.5 cdh_-05.csv # Gera dados considerando max e precipitação
+  python3 intern/plot_spi.py                                  #gera os dados de spi
 
-  python3 intern/plot_spi.py #gera os dados de spi
 elif [ $r == 4 ]; then
   echo "Construindo o percentil da temperatura máxima"
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
