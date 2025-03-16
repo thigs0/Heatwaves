@@ -4,6 +4,8 @@ The code may priorize make all necessary calculations in *Python* and *CDO*.
 For python you will need pandas, numpy, scipy, xarray and alive-progress
 All conected by *BASH* and running in Linux systems. 
 
+``` pip install pandas numpy scipy xarray alive-progress```
+
 ## To run the code
 
 	./extremos.sh netcdf/tmax.nc 1990 90 15 [netcdf/pr.nc] [netcdf/tmin.nc]
