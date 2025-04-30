@@ -12,7 +12,7 @@ years = years[ ~np.isnan(years) ]
 
 #constrio
 
-print('construindo gráfico da anomalia')
+print('Creating anomali graph')
 c = df[df.cummulative != 0] 
 c = df.loc[: , ['time', 'cummulative']]
 plt.scatter(c.time, c.cummulative, s=c.cummulative)
@@ -21,4 +21,4 @@ plt.title('Onda de calor registrada em cada data e sua anomalia')
 plt.ylabel('Onda de calor')
 plt.savefig('anomaly.png', dpi=300)
 
-print('feito')
+print('Done')

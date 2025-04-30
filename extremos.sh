@@ -20,7 +20,8 @@ function Percentil_max() { # calcula o percentil de uma série temporal de tempe
 
   # Percentil tmax.nc year percentil window
 
-  #Encontramos o período de anos do arquivo
+  #Finding the period of years at file
+  echo "Creating percent of maximum temperature file"
   year="$(cdo -S showyear $1 | head -n 4)"
   year=($year)
   ymin=(${year[0]})
@@ -29,7 +30,7 @@ function Percentil_max() { # calcula o percentil de uma série temporal de tempe
   cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null #O arquivo nc com as temperatpuros no período que avaliamos
   cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
-  #Calcula o percentiu do período de referência
+  #creating the percent period of reference
   cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmax.nc >>/dev/null
   rm tmax_ref.nc
 }
@@ -43,7 +44,8 @@ function Percentil_min() { # calcula o percentil de uma série temporal de tempe
 
   # Percentil tmax.nc year percentil window
 
-  #Encontramos o período de anos do arquivo
+  #Finding the period of years at file
+  echo "Creating percentil of minimum temperature"
   year="$(cdo -S showyear $1 | head -n 4)"
   year=($year)
   ymin=(${year[0]})
@@ -95,11 +97,9 @@ if [ $r == 1 ]; then
   python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave
 
 elif [ $r == 2 ]; then
-  echo "Construindo o percentil da temperatura máxima"
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
-  echo "Construindo o percentil da temperatura mínima"
   Percentil_min $6 $(($2 - 1)) $3 $4 $5
-  echo "Gerando os dados de ondas de calor"
+  echo "Creating heatwave data"
   python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # gera dados considerando max e min
   python3 intern/cumulative_heat.py                                                                 #gera os dados acumulados de cada onda de calor
 
@@ -112,17 +112,14 @@ elif [ $r == 3 ]; then
   python3 intern/plot_spi.py                                  #gera os dados de spi
 
 elif [ $r == 4 ]; then
-  echo "Construindo o percentil da temperatura máxima"
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
-  echo "Gerando os dados de ondas de calor"
+  echo "Creating heatwave data"
 
   python3 intern/heatwave3ormore.py netcdf/tmax.nc ./percentmax.nc # Gera dados considerando max e precipitação
 elif [ $r == 5 ]; then
-  echo "Construindo o percentil da temperatura máxima"
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
-  echo "Construindo o percentil da temperatura mínima"
   Percentil_min $6 $(($2 - 1)) $3 $4 $5
-  echo "Gerando os dados de ondas de calor"
+  echo "Creating heatwave data"
 
   python3 intern/heatwave3ormoretmaxtmin.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Gera dados considerando max e precipitação
 
@@ -130,7 +127,7 @@ fi
 
 #Gera regressão linear e teste de tendência
 python3 intern/plot.py
-python3 intern/linear_season.py
+#python3 intern/linear_season.py
 
 #Organiza em pastas
 if [ ! -d imagens ]; then
@@ -144,4 +141,4 @@ fi
 mv *.csv dados
 
 #Remome trash data
-rm *.nc
+#rm *.nc

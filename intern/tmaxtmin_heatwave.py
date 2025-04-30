@@ -12,95 +12,149 @@ import sys
 import warnings
 warnings.filterwarnings("ignore")
 
-def heatwave_Dataset(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, percentmin:xr.Dataset) -> pd.DataFrame: #gera um dataframe com o valor de da temperatura e a referênia
-    tmax = tmax.sel(time=tmax.time.dt.year >1990)
+def heatwave_Dataset(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, percentmin:xr.Dataset) -> xr.Dataset: #gera um dataframe com o valor de da temperatura e a referênia
+    tmax = tmax.where(tmax.time.dt.year > 1990, drop=True)
+    tmin = tmin.where(tmin.time.dt.year > 1990, drop=True)
+    #tmax = tmax.sel(time=tmax.time.dt.year >1990)
+
+    tmax = tmax['tmax'] if isinstance(tmax, xr.Dataset) else tmax
+    tmin = tmin['tmin'] if isinstance(tmin, xr.Dataset) else tmin
+    percentmax = percentmax['tmax'] if isinstance(percentmax, xr.Dataset) else percentmax
+    percentmin = percentmin['tmin'] if isinstance(percentmin, xr.Dataset) else percentmin
+
     years = np.arange( tmax.time.dt.year[0].to_numpy().item(), tmax.time.dt.year[-1].to_numpy().item()+1 )#
-    df = pd.DataFrame()
-    df["time"] = tmax.time.to_numpy().flatten() #dataframe de saída
-    df[['tmax', 'greater', 'heatwave']] = pd.NA
+    #rename coords of tmax, tmin, percentmax and percentmin 
+    if "latitude" in tmax.coords:
+        ds = tmax.rename({"latitude": "lat"})
+    if "longitude" in tmax.coords:
+        ds = tmax.rename({"longitude": "lon"})
+    if "latitude" in tmin.coords:
+        ds = tmin.rename({"latitude": "lat"})
+    if "longitude" in tmin.coords:
+        ds = tmin.rename({"longitude": "lon"})
+    if "latitude" in percentmax.coords:
+        ds = percentmax.rename({"latitude": "lat"})
+    if "longitude" in percentmin.coords:
+        ds = percentmax.rename({"longitude": "lon"})
+    if "latitude" in percentmax.coords:
+        ds = percentmin.rename({"latitude": "lat"})
+    if "longitude" in percentmin.coords:
+        ds = percentmin.rename({"longitude": "lon"})
 
+    # Adiciona o dayofyear como coordenada em percentmax
+    percentmax = percentmax.assign_coords(dayofyear=percentmax.time.dt.dayofyear)
+    percent_daily = percentmax.groupby('dayofyear').mean(dim='time')
+    percent_daily = percent_daily.assign_coords(dayofyear=percent_daily['dayofyear'])
+    data_dayofyear = tmax.time.dt.dayofyear
+    percentmax_expanded = percent_daily.sel(dayofyear=data_dayofyear, method='nearest')
+    percentmax_expanded = percentmax_expanded.assign_coords(time=tmax.time)
+    percentmax = percentmax_expanded
 
-    #Calculo das ondas de calor
+    # Adiciona o dayofyear como coordenada em percentmax
+    percentmin = percentmin.assign_coords(dayofyear=percentmin.time.dt.dayofyear)
+    percent_daily = percentmin.groupby('dayofyear').mean(dim='time')
+    percent_daily = percent_daily.assign_coords(dayofyear=percent_daily['dayofyear'])
+    data_dayofyear = tmin.time.dt.dayofyear
+    percentmin_expanded = percent_daily.sel(dayofyear=data_dayofyear, method='nearest')
+    percentmin_expanded = percentmin_expanded.assign_coords(time=tmin.time)
+    percentmin = percentmin_expanded
+
+    percentmax = percentmax.broadcast_like(tmax)
+    percentmin = percentmin.broadcast_like(tmin)
+
+    #Calcule heatwave
     year = years[0]
+    print("Calculating the heatwaves")
+    greater = ((tmax > percentmax)&(tmin > percentmin)).astype(int)
+    rolling_sum = greater.rolling(time=3).sum()
+    heatwave_flag = (rolling_sum >= 3).shift(time=-2).fillna(0).astype(int)
+    
+    heatwave_raw = (rolling_sum >= 3).shift(time=-2).fillna(0).astype(int)
 
-    print('gerando csv com dias mais quentes')
-    with alive_bar( len(df.time) ) as bar:
-        for i,date in enumerate(df['time']):
-            xmax = tmax.sel(time=date).tmax
-            xmin = tmin.sel(time=date).tmin
-            ymax = percentmax.tmax.values[ ((percentmax.time.dt.month == date.month) & (percentmax.time.dt.day == date.day)) ].flatten() #valor do percentil no dia
-            ymin = percentmin.tmin.values[ ((percentmin.time.dt.month == date.month) & (percentmin.time.dt.day == date.day)) ].flatten() #valor do percentil no dia
-            df.loc[i, 'tmax'] = xmax.to_numpy().item()
-            df.loc[i, 'tmin'] = xmin.to_numpy().item()
-            df.loc[i, 'ref_max'] = ymax
-            df.loc[i, 'ref_min'] = ymin
-            df.loc[i, 'greater'] = 1 if df.loc[i, 'tmax'] > df.loc[i, 'ref_max'] and  df.loc[i, 'tmin'] > df.loc[i, 'ref_min'] else 0
-            bar()
-    print('Gerando csv com as ondas de calor')
-    #heatwave
+    # Cria máscara para registrar apenas o 1º dia e pular os 2 seguintes
+    heatwave_events = heatwave_raw.copy(deep=True)
+    heatwave_events[:] = 0
+
     i = 0
-    with alive_bar( len(df.time) ) as bar:
-        while i < len(df.time)-3:
-            df.loc[i, 'heatwave'] = 1 if df.loc[i:i+2, 'greater'].sum() == 3 else 0
-            if df.loc[i, 'heatwave'] == 1:
-                i+=3
-                bar(3)
+    while i < len(heatwave_raw.time):
+        if heatwave_raw.isel(time=i):
+            heatwave_events[i] = 1  # marca início do evento
+            i += 3  # pula os próximos 2 dias (total 3 dias por evento)
+        else:
+            i += 1
+
+    ref_max = percentmax.broadcast_like(tmax)
+    ref_min = percentmin.broadcast_like(tmin)
+    #out netcdf
+    out_ds = xr.Dataset({
+        'tmax': tmax,
+        'tmin': tmin,
+        'refmin': ref_min,
+        'refmax': ref_max,
+        'greater': greater,
+        'heatwave': heatwave_events,
+    })
+    out_ds.to_dataframe().reset_index().to_csv("tmax_ref.csv", index=False)
+    return out_ds
+
+def Season_heatwave(ds: xr.Dataset) -> xr.Dataset:
+    """Recebe um Dataset com a variável 'heatwave' binária e retorna um novo Dataset com soma por estação."""
+
+    years = np.arange(ds.time.dt.year.min().item(), ds.time.dt.year.max().item() + 1)
+    seasons = {
+        '1': ((ds.time.dt.month == 12) | (ds.time.dt.month <= 2)),
+        '2': ((ds.time.dt.month >= 3) & (ds.time.dt.month <= 5)),
+        '3': ((ds.time.dt.month >= 6) & (ds.time.dt.month <= 8)),
+        '4': ((ds.time.dt.month >= 9) & (ds.time.dt.month <= 11)),
+    }
+
+    # Criação de array de resultado
+    result = {season: [] for season in seasons}
+    result["year"] = []
+
+    for year in years:
+        result["year"].append(year)
+        for s, condition in seasons.items():
+            if s == '1':
+                # Dezembro do ano anterior + Jan/Fev do ano atual
+                season_data = ds.sel(
+                    time=(((ds.time.dt.year == year - 1) & (ds.time.dt.month == 12)) |
+                          ((ds.time.dt.year == year) & (ds.time.dt.month <= 2)))
+                )
             else:
-                i+=1
-                bar(1)
+                season_data = ds.sel(time=(ds.time.dt.year == year) & condition, method="nearest")
+            result[s].append(season_data.sum().item())
 
-    return df
+    # Criação do novo Dataset de estações
+    season_ds = xr.Dataset({
+        "DJF": (("year",), result["1"]),
+        "MAM": (("year",), result["2"]),
+        "JJA": (("year",), result["3"]),
+        "SON": (("year",), result["4"]),
+    }, coords={"year": result["year"]})
 
-def Season_heatwave(df:pd.DataFrame) -> None:
-    """Recebe um dataframe com 1 se o dia teve onda de calor e 0 se não. Assim criar um novo dataframe com as ondas d calor
-    separadas por estação"""
-    hw = pd.DataFrame(columns=["time","1","2","3","4"]) #dataframe com resultados
-    hw["time"] = np.arange(df.loc[0, "time"].year, df["time"][len(df)-1].year+1) # each year
-    
-    for i,j in enumerate(hw["time"][:]):
-        #dez jan fev
-        t = df[((df["time"].dt.year == j-1)&(df["time"].dt.month==12)|(df["time"].dt.year==j)&(df["time"].dt.month <= 2))] #data avaliada
-        hw["1"][i] = np.sum(t["heatwave"])
-
-        #mar abril maio
-        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=3)&(df["time"].dt.month <= 5)) ]
-        hw["2"][i] = np.sum(t["heatwave"])
-
-        #jun jul ago
-        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=6)&(df["time"].dt.month <= 8)) ]
-        hw["3"][i] = np.sum(t["heatwave"])
-
-        #set out nov
-        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=9)&(df["time"].dt.month <= 11)) ]
-        hw["4"][i] = np.sum(t["heatwave"])
-
-    
-    hw.to_csv("season_heatwave.csv")
+    season_ds.to_dataframe().reset_index().to_csv("season_heatwave.csv", index=False)
 
 def main(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, percentmin:xr.Dataset):
     #tmax é o nc de teperatura que iremos avaliar
     tmax = xr.open_dataset(tmax)
-    tmax = tmax.sel(time = tmax.time[tmax.time.dt.year > 1990])
     tmin = xr.open_dataset(tmin)
-    tmin = tmin.sel(time = tmin.time[tmin.time.dt.year > 1990])
 
     percentmax = xr.open_dataset('percentmax.nc')
     percentmin = xr.open_dataset('percentmin.nc')
-
     time = pd.to_datetime(tmax.time.values)
 
     years = np.arange( tmax.time.dt.year[0].to_numpy().item(), tmax.time.dt.year[-1].to_numpy().item()+1 )
-    print("os seguintes anos estão sendo considerados:")
+    print("The Heatwaves are of these years:")
     print(years)
 
-    df = heatwave_Dataset(tmax, tmin,percentmax, percentmin) 
-    Season_heatwave(df)
-    df.to_csv("tmax_ref.csv", index=False)
+    ds = heatwave_Dataset(tmax, tmin, percentmax, percentmin) 
+    Season_heatwave(ds.heatwave)
 
 if __name__ == "__main__":
-    param1 = sys.argv[1]
-    param2 = sys.argv[2]
-    param3 = sys.argv[3]
-    param4 = sys.argv[4]
+    param1 = sys.argv[1] #tmax netcdf
+    param2 = sys.argv[2] #tmin netcdf
+    param3 = sys.argv[3] #percentmax
+    param4 = sys.argv[4] #percentmin
 
     main(param1, param2, param3, param4)
