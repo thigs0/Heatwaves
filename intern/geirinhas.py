@@ -75,7 +75,7 @@ def main(tmax, spi_param, nome):
     df.to_csv(f"../{nome}")
 
 if __name__ == "__main__":
-    parametro1 = sys.argv[1]
+    parametro1 = sys.argv[1] #tmax.nc 
     parametro2 = sys.argv[2]
 
     parametro3 = sys.argv[3]
