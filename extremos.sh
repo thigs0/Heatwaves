@@ -6,6 +6,8 @@
 #4 é o dias que usamos como janela
 #5 é o netcdf de precipitação diária
 #6 é o netcdf da temperatura mínima se quiser ser passado
+#7 é o netcdf da temperatura máxima para calcular o percentil
+#8 é o netcdf da temperatura mínima para calcular o percentil
 
 #Tendo um arquivo netcdf4 com as datas completas chamada df.nc,
 #Com apenas uma variável de clima
@@ -93,8 +95,13 @@ echo "Wich heatwave definition you will considerate?
 
 read r
 if [ $r == 1 ]; then
-  Percentil_max $1 $(($2 - 1)) $3 $4 $5 >>/dev/null
-  python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave
+  if [ -z "$7" ]; then #if file it's with all time
+    Percentil_max $1 $(($2 - 1)) $3 $4 $5 >>/dev/null
+    python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave
+  else                                        #if file is separeted in two
+    Percentil_max $7 $(($2 - 1)) $3 $4 $5 >>/dev/null
+    python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave
+  fi
 
 elif [ $r == 2 ]; then
   Percentil_max $1 $(($2 - 1)) $3 $4 $5

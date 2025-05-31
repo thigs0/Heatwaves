@@ -1,9 +1,9 @@
 """
 Calcula as ondas de calor por ano e seus tamanhos.
 salva em um arquivo de saída .csv 
-
 """
 from alive_progress import alive_bar
+from matplotlib import pyplot as plt
 import xarray as xr
 import numpy as np
 import datetime
@@ -24,52 +24,48 @@ def heatwave_Dataset(ds: xr.Dataset, percent: xr.Dataset) -> xr.Dataset:
     if "longitude" in ds.coords:
         ds = ds.rename({"longitude": "lon"})
 
-    # Separa os dados históricos e atuais
-
-    historical = ds.sel(time=(ds.time.dt.year > 1961) & (ds.time.dt.year < 1991))
-    data = ds.where(ds.time.dt.year >= 1991, drop=True)
+    # Filtra os dados atuais (a partir de 1991)
     data = ds.sel(time=ds.time.dt.year >= 1991)
-    
+
+    percent = percent.isel(lat=0, lon=0 )
     # Agrupa percentis por dia do ano
     percent_daily = percent.groupby('time.dayofyear').mean()
-
-    # Extrai o dia do ano dos dados atuais
-    data_dayofyear = data.time.dt.dayofyear
-
-    # Seleciona o percentil correspondente a cada dia do ano
+    data_dayofyear = data.time.dt.dayofyear.astype(int)
+    #ref_values = percent_daily.interp(dayofyear=data.time.dt.dayofyear)
     ref_values = percent_daily.sel(dayofyear=data_dayofyear, method='nearest')
-
-    # Garante que ref_base tenha apenas dimensão time
+    ref_values = ref_values.fillna(0)
     ref_base = ref_values['tmax'] if isinstance(ref_values, xr.Dataset) else ref_values
-
-    # Alinha a coordenada de tempo com o dataset de dados
     ref_base = ref_base.assign_coords(time=data.time)
-
-    # Faz broadcast automático para lat/lon/time
     ref_broadcasted = ref_base.broadcast_like(data.tmax)
-
-    # Comparação: dias com tmax acima do percentil
+    ref_broadcasted.to_netcdf('broadcast_tmax.nc')
+    
+    # Dias com tmax acima do percentil
     greater = (data.tmax > ref_broadcasted).astype(int)
-
+    print(greater.where(greater > 0))
+    #print(data.tmax)
+    #print(ref_broadcasted)
     # Rolling de 3 dias
     rolling_sum = greater.rolling(time=3).sum()
-
     heatwave_raw = (rolling_sum >= 3).shift(time=-2).fillna(0).astype(int)
 
-    # Cria máscara para registrar apenas o 1º dia e pular os 2 seguintes
-    heatwave_events = heatwave_raw.copy(deep=True)
-    heatwave_events[:] = 0
+    # Inicializa saída
+    heatwave_events = xr.zeros_like(heatwave_raw)
 
-    i = 0
-    while i < len(heatwave_raw.time):
-        if heatwave_raw.isel(time=i):
-            heatwave_events[i] = 1  # marca início do evento
-            i += 3  # pula os próximos 2 dias (total 3 dias por evento)
-        else:
-            i += 1
-
-    # Heatwave: 3 dias consecutivos acima do percentil
-    heatwave_flag = (rolling_sum >= 3).shift(time=-2).fillna(0).astype(int)
+    # Aplica lógica por ponto (lat, lon)
+    with alive_bar(len(data.lat.values)*len(data.lon.values)) as bar:
+        for lat in data.lat.values:
+            for lon in data.lon.values:
+                hw_point = heatwave_raw.sel(lat=lat, lon=lon)
+                hw_out = xr.zeros_like(hw_point)
+                i = 0
+                while i < hw_point.sizes['time']:
+                    if hw_point.isel(time=i).item():
+                        hw_out[i] = 1
+                        i += 3
+                    else:
+                        i += 1
+                heatwave_events.loc[dict(lat=lat, lon=lon)] = hw_out
+                bar()
 
     # Cria o Dataset de saída
     out_ds = xr.Dataset({
@@ -80,7 +76,6 @@ def heatwave_Dataset(ds: xr.Dataset, percent: xr.Dataset) -> xr.Dataset:
     })
 
     return out_ds
-
 
 def Season_heatwave(ds: xr.Dataset) -> xr.Dataset:
     """Recebe um Dataset com a variável 'heatwave' binária e retorna um novo Dataset com soma por estação."""
@@ -120,12 +115,15 @@ def Season_heatwave(ds: xr.Dataset) -> xr.Dataset:
 
     season_ds.to_dataframe().reset_index().to_csv("season_heatwave.csv", index=False)
 
-
 def main(tmax):
-    #tmax é o nc de teperatura que iremos avaliar
+    #tmax is a netcdf file temperature to evalue
     tmax = xr.open_dataset(tmax)
     tmax = tmax.sel(time = tmax.time[tmax.time.dt.year > 1990])
-    time = pd.to_datetime(tmax.time.values)
+    try:
+        time = np.array(tmax.indexes['time'].to_datetimeindex())
+        time = pd.to_datetime(time)
+    except:
+        pass
     percent = xr.open_dataset("percentmax.nc")
 
     i = 0
@@ -139,6 +137,7 @@ def main(tmax):
     hw_cont = np.zeros(years.size)
 
     df = heatwave_Dataset(tmax, percent) 
+    df.to_netcdf("./heatwave.nc")
     Season_heatwave(df)
 
     df.to_dataframe().reset_index().to_csv("tmax_ref.csv", index=False)

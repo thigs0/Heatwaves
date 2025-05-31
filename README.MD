@@ -1,5 +1,4 @@
 # Description of code and your functions
-
 The code may priorize make all necessary calculations in *Python* and *CDO*.
 For python you will need pandas, numpy, scipy, xarray and alive-progress
 All conected by *BASH* and running in Linux systems. 
@@ -8,8 +7,10 @@ All conected by *BASH* and running in Linux systems.
 
 ## To run the code
 
-	./extremos.sh netcdf/tmax.nc 1990 90 15 [netcdf/pr.nc] [netcdf/tmin.nc]
+	./extremos.sh netcdf/tmax.nc 1990 90 15 [netcdf/pr.nc] [netcdf/tmin.nc] [netcdf/percenttmax.nc] [netcdf/percenttmin.nc]
 
+All data need be with tmin name to minimum temperature values, tmax name to maximum temperature, lat to latitude values, lon to longitude values and time to 
+datatime values 
 the params inside [] are option that need only if the calculus need
 The paramns are:
 
@@ -19,6 +20,9 @@ The paramns are:
 4) it's number of days that are used like window calculation
 5) it's the daily precipitation netcdf file, like (1961-2024)
 6) it's the daily minimum temperature netcdf file complete, like (1961-2024)
+7) it's the historic netcdf to construct tmax percent 
+8) it's the historic netcdf to construct tmin percent
+
 
 **The images are saved ar directory "imagens" and the data are saved in directory "dados"**
 
@@ -50,6 +54,7 @@ The paramns are:
 6. <a href="./intern/cumulative_heat.py">cumulative_heat.py</a> calculate the anomaly of temperature for each heatwave
 7. <a href="./intern/txttonetcdf.py"> txttonetcdf.py </a> open the file in ./dados/input.csv, that can be updated with excel and after to convert to netcdf
 8. <a href="./intern/heatwave3ormore.py"> heatwave3ormore </a> open the file in ./intern/heatwave3ormore.py, that create the heatwave files considering heatwaves when has 3 hotdays using maximum temperature
+9. <a href="./intern/expand_reference.py"> Expand reference</a> change the file expanding the latitude and longitude
 
 ## Reference
 Geirinhas, João & Russo, Ana & Libonati, Renata & Sousa, Pedro & Miralles, Diego & Trigo, Ricardo. (2021). <a href="https://iopscience.iop.org/article/10.1088/1748-9326/abe0eb">Recent increasing frequency of compound summer drought and heatwaves in Southeast Brazil. Environmental Research Letters</a>. 16. 10.1088/1748-9326/abe0eb. 
