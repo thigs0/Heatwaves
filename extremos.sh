@@ -95,12 +95,20 @@ echo "Wich heatwave definition you will considerate?
 
 read r
 if [ $r == 1 ]; then
-  if [ -z "$7" ]; then #if file it's with all time
-    Percentil_max $1 $(($2 - 1)) $3 $4 $5 >>/dev/null
-    python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave
-  else                                        #if file is separeted in two
-    Percentil_max $7 $(($2 - 1)) $3 $4 $5 >>/dev/null
-    python3 intern/HeatWave.py netcdf/tmax.nc #Gera os dados de heatwave
+  if [ -z "$7" ]; then #if file tmax reference is't passed
+    Percentil_max $1 $(($2 - 1)) $3 $4 $5
+    echo "Creating heatwave data"
+    python3 intern/heatwave.py netcdf/tmax.nc ./percentmax.nc #Gera os dados de heatwave
+
+    echo "Creating heatwave data"
+    python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # gera dados considerando max e min
+    python3 intern/cumulative_heat.py                                                                 #gera os dados acumulados de cada onda de calor
+
+    #python3 intern/plot_cummulative.py
+    python3 intern/anomaly.py
+
+  else                                           #if file is separeted in two
+    python3 intern/heatwave.py netcdf/tmax.nc $7 #Gera os dados de heatwave
   fi
 
 elif [ $r == 2 ]; then

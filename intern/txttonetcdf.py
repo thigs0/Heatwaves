@@ -7,15 +7,20 @@ def main():
    #p1 é o arquivo txt que queremos converter para netcdf
     df = pd.read_csv("../dados/input.csv")
     #df.columns need be [Tmin, Tmax, Pr, Date, Lat, Lon]
-    df.columns = [i.lower() for i in df.columns]
-    df["time"] = pd.to_datetime(df["date"])
+    columns =  ['Tmin', 'Tmax', 'Pr', 'Date', 'Lat', 'Lon']
+    df = df[columns]
+    df.columns = [i.lower() for i in columns]
+    df["time"] = pd.to_datetime(df["date"], format="%d/%m/%Y")
+
+    df = df.drop_duplicates()
     df = df.drop(columns=["date"])
     df = df.set_index(["time", "lat","lon"])
     for j in df.columns:
         out = df.drop(columns=df.columns[ df.columns != j ])
         ds = out.to_xarray()
         ds = xr.Dataset(ds)
-        ds.to_netcdf(f"../{j}.nc")
+        ds.to_netcdf(f"../netcdf/{j}.nc")
+        print(f"Saved in ../netcdf/{j}.nc")
 
 
 if __name__ == "__main__":
