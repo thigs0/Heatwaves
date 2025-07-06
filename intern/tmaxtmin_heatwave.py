@@ -140,8 +140,8 @@ def main(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, percentmin:xr.
     tmax = xr.open_dataset(tmax)
     tmin = xr.open_dataset(tmin)
 
-    percentmax = xr.open_dataset('percentmax.nc')
-    percentmin = xr.open_dataset('percentmin.nc')
+    percentmax = xr.open_dataset(percentmax)
+    percentmin = xr.open_dataset(percentmin)
     time = pd.to_datetime(tmax.time.values)
 
     years = np.arange( tmax.time.dt.year[0].to_numpy().item(), tmax.time.dt.year[-1].to_numpy().item()+1 )
