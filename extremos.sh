@@ -1,24 +1,22 @@
 #!/bin/bash
 #./extremos tmax.nc 1990 90 15 pr.nc
-#1 é o netcdf de temperatura máxima completo
-#2 é o ano que a partir dele calculamos o índice
-#3 é o percentil de temperatura que queremos calcular
-#4 é o dias que usamos como janela
-#5 é o netcdf de precipitação diária
-#6 é o netcdf da temperatura mínima se quiser ser passado
-#7 é o netcdf da temperatura máxima para calcular o percentil
-#8 é o netcdf da temperatura mínima para calcular o percentil
+#1 it's the daily maximum temperature netcdf file complete, like (1961-2024)
+#2 it's the year that start the calculation of index
+#3 it's the percentil that is used in temperature relative calculations
+#4 it's number of days that are used like window calculation
+#5 it's the daily precipitation netcdf file, like (1961-2024)
+#6 it's the daily minimum temperature netcdf file complete, like (1961-2024)
+#7 it's the historic netcdf to construct tmax percent
+#8 it's the historic netcdf to construct tmin percent
 
-#Tendo um arquivo netcdf4 com as datas completas chamada df.nc,
-#Com apenas uma variável de clima
-#Se o arquivo passadofor txt, convertemos para netcdf
+#To this code, each file need has only one climatic variable
 
-function Percentil_max() { # calcula o percentil de uma série temporal de temperatura mínima
-  #1 é o netcdf4 de temperatura máxima
-  #2 ano final de referência
-  #3 é qual o percentil que queremos calcular
-  #4 é o dias que usaremos como janela
-  #5 é o netcdf de precipitação diária
+function Percentil_max() { # This code calculate the percentil about minimum temperature serie
+  #1 it's the daily maximum temperature netcdf file complete, like (1961-2024)
+  #2 it's the year that start the calculation of index
+  #3 it's the percentil that is used in temperature relative calculations
+  #4 it's number of days that are used like window calculation
+  #5 it's the daily precipitation netcdf file, like (1961-2024)
 
   # Percentil tmax.nc year percentil window
 
@@ -29,7 +27,7 @@ function Percentil_max() { # calcula o percentil de uma série temporal de tempe
   ymin=(${year[0]})
   ymax=(${year[-1]})
   cdo selyear,${ymin}/${2} $1 tmax_ref.nc >>/dev/null
-  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null #O arquivo nc com as temperatpuros no período que avaliamos
+  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null #File .nc with temperature at period to avaliate
   cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
   #creating the percent period of reference
@@ -37,12 +35,12 @@ function Percentil_max() { # calcula o percentil de uma série temporal de tempe
   rm tmax_ref.nc
 }
 
-function Percentil_min() { # calcula o percentil de uma série temporal de temperatura mínima
-  #1 é o netcdf4 de temperatura mínima
-  #2 ano final de referência
-  #3 é qual o percentil que queremos calcular
-  #4 é o dias que usaremos como janela
-  #5 é o netcdf de precipitação diária
+function Percentil_min() { # Calculate the percentil about maximum temperature serie
+  #1 it's the daily minimum temperature netcdf file complete, like (1961-2024)
+  #2 it's the year that start the calculation of index
+  #3 it's the percentil that is used in temperature relative calculations
+  #4 it's number of days that are used like window calculation
+  #5 it's the daily precipitation netcdf file, like (1961-2024)
 
   # Percentil tmax.nc year percentil window
 
@@ -53,21 +51,21 @@ function Percentil_min() { # calcula o percentil de uma série temporal de tempe
   ymin=(${year[0]})
   ymax=(${year[-1]})
   cdo selyear,${ymin}/${2} $1 tmax_ref.nc >>/dev/null
-  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null #O arquivo nc com as temperatpuros no período que avaliamos
+  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null  #File .nc with temperature at period to avaliate
   cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
-  #Calcula o percentiu do período de referência
+  #Calculating percentil
   cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmin.nc >>/dev/null
   rm tmax_ref.nc
 }
 
 function SPI() {
-  #1 é o netcdf de precipitação diária
-  python3 intern/spi.py $5 #Calcula o índice spi e salva em spi.nc
+  #1 it's the daily precipitation netcdf file, like (1961-2024)
+  python3 intern/spi.py $5 #Calculate the SPI index and save with name "spi.nc"
 }
 
 function percentagem() {
-  #Ainda em construção
+  #At development
   #Calcula o termo relativo de crescimento
 
   year="$(cdo -S showyear $1 | head -n 4)"
@@ -85,6 +83,18 @@ function percentagem() {
   div=$((dif / soma))
 
 }
+function convertKelvin2Celsius(){ # if argument file is Kelvin, converto to celsius
+  unidade=$(cdo showunit "$1" 2>/dev/null | head -n 1 | tr -d '[:space:]')
+  echo "$unidade"
+  if [ "$unidade" = "K" ]; then
+      echo "Unit is Kelvin. Converting to Celsius..."
+      tmpfile=$(mktemp)
+      cdo -chunit,K,Celsius -subc,273.15 "$1" "$tmpfile" && mv "$tmpfile" "$1"
+  else
+      echo ""
+  fi
+}
+
 
 echo "Wich heatwave definition you will considerate?
 		1 -> Consider the OMM definition of heatwve
@@ -94,49 +104,63 @@ echo "Wich heatwave definition you will considerate?
 		5 -> Consider 3 hotdays or more to tmax and tmin to define heatwave"
 
 read r
+
+convertKelvin2Celsius $1
+convertKelvin2Celsius $6
+
 if [ $r == 1 ]; then
   if [ -z "$7" ]; then #if file tmax reference is't passed
     Percentil_max $1 $(($2 - 1)) $3 $4 $5
     echo "Creating heatwave data"
-    python3 intern/heatwave.py netcdf/tmax.nc ./percentmax.nc #Gera os dados de heatwave
+    python3 intern/heatwave.py netcdf/tmax.nc ./percentmax.nc #Calculating heatwaves
 
     echo "Creating heatwave data"
-    python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # gera dados considerando max e min
-    python3 intern/cumulative_heat.py                                                                 #gera os dados acumulados de cada onda de calor
+    python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Create heatwave considering tmax and tmin
+    python3 intern/cumulative_heat.py                                                                 #generate cumumulative number of heatwaves
 
     #python3 intern/plot_cummulative.py
     python3 intern/anomaly.py
 
   else                                           #if file is separeted in two
-    python3 intern/heatwave.py netcdf/tmax.nc $7 #Gera os dados de heatwave
+    python3 intern/heatwave.py netcdf/tmax.nc $7 #Create heatwave considering only tmax 
   fi
 
 elif [ $r == 2 ]; then
-  Percentil_max $1 $(($2 - 1)) $3 $4 $5
-  Percentil_min $6 $(($2 - 1)) $3 $4 $5
-  echo "Creating heatwave data"
-  python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # gera dados considerando max e min
-  python3 intern/cumulative_heat.py                                                                 #gera os dados acumulados de cada onda de calor
+  if [ -z "$7" ]; then #if file tmax reference is't passed
+    Percentil_max $1 $(($2 - 1)) $3 $4 $5
+    Percentil_min $6 $(($2 - 1)) $3 $4 $5
+    echo "Creating heatwave data"
+    python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Create heatwave considering tmax and tmin
+    python3 intern/cumulative_heat.py                                                                 #generate cumumulative number of heatwaves
 
-  #python3 intern/plot_cummulative.py
-  python3 intern/anomaly.py
+    #python3 intern/plot_cummulative.py
+    python3 intern/anomaly.py
+  else #if file is separeted in two
+    echo "Creating heatwave data"
+    
+    python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc $7 $8 # Create heatwave considering tmax and tmin
+    python3 intern/cumulative_heat.py                                       #generate cumumulative number of heatwaves
+
+    #python3 intern/plot_cummulative.py
+    python3 intern/anomaly.py
+  fi
 
 elif [ $r == 3 ]; then
   spi=$(SPI $5)
-  python3 intern/geirinhas.py netcdf/tmax.nc -0.5 cdh_-05.csv # Gera dados considerando max e precipitação
-  python3 intern/plot_spi.py                                  #gera os dados de spi
+  python3 intern/geirinhas.py netcdf/tmax.nc -0.5 cdh_-05.csv # Create heatwaves considering tmax and pecipitation (spi file)
+  python3 intern/plot_spi.py                                  #Plot SPI data
 
 elif [ $r == 4 ]; then
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
   echo "Creating heatwave data"
 
-  python3 intern/heatwave3ormore.py netcdf/tmax.nc ./percentmax.nc # Gera dados considerando max e precipitação
+  python3 intern/heatwave3ormore.py netcdf/tmax.nc ./percentmax.nc # Create heatwaves considering tmax and pecipitation (spi file)
 elif [ $r == 5 ]; then
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
   Percentil_min $6 $(($2 - 1)) $3 $4 $5
   echo "Creating heatwave data"
 
-  python3 intern/heatwave3ormoretmaxtmin.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Gera dados considerando max e precipitação
+  python3 intern/heatwave3ormoretmaxtmin.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Create heatwaves considering tmax and pecipitation (spi file)
 
 fi
 
@@ -144,7 +168,7 @@ fi
 python3 intern/plot.py
 #python3 intern/linear_season.py
 
-#Organiza em pastas
+#Organize files in directories
 if [ ! -d imagens ]; then
   mkdir imagens
 fi
@@ -156,4 +180,4 @@ fi
 mv *.csv dados
 
 #Remome trash data
-#rm *.nc
+rm *.nc
