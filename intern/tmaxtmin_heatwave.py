@@ -71,17 +71,20 @@ def heatwave_Dataset(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, pe
     
     heatwave_raw = (rolling_sum >= 3).shift(time=-2).fillna(0).astype(int)
 
-    # Cria máscara para registrar apenas o 1º dia e pular os 2 seguintes
+    # Cria máscara para registrar apenas o 1º dia de cada evento (valor 1)
     heatwave_events = heatwave_raw.copy(deep=True)
     heatwave_events[:] = 0
 
-    i = 0
-    while i < len(heatwave_raw.time):
-        if heatwave_raw.isel(time=i):
-            heatwave_events[i] = 1  # marca início do evento
-            i += 3  # pula os próximos 2 dias (total 3 dias por evento)
-        else:
-            i += 1
+    print("Marcando início das ondas de calor...")
+    for lat in range(len(heatwave_raw.lat)):
+        for lon in range(len(heatwave_raw.lon)):
+            i = 0
+            while i < len(heatwave_raw.time):
+                if heatwave_raw.isel(time=i, lat=lat, lon=lon).item() == 1:
+                    heatwave_events[i, lat, lon] = 1  # marca o início do evento
+                    i += 3  # pula os 2 próximos dias da mesma onda
+                else:
+                    i += 1
 
     ref_max = percentmax.broadcast_like(tmax)
     ref_min = percentmin.broadcast_like(tmin)

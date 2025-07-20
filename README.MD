@@ -66,6 +66,9 @@ Xavier, A. C., Scanlon, B. R., King, C. W., & Alves, A. I. (2022). <a href="http
 <p>Intense Heat Wave</p>
 John R. Nairn 1,* and Robert J. B. Fawcett. (2013). <a href="https://www.researchgate.net/publication/270292252_The_Excess_Heat_Factor_A_Metric_for_Heatwave_Intensity_and_Its_Use_in_Classifying_Heatwave_Severity">The Excess Heat Factor: A Metric for Heatwave Intensity and Its Use in Classifying Heatwave Severity </a>. International Journal of Environmental Research and Public Health (IJERPH)
 
+<p>Hotter, Longer and More Frequent Heatwaves: An Observational Study for the Brazilian City of Campinas, SP</p>
+Daniela S Oliveira et all (2021). <a href="https://www.scielo.br/j/rbmet/a/xFMpHYzrjZFJwFMDkfjD5tG/">Hotter, Longer and More Frequent Heatwaves: An Observational Study for the Brazilian City of Campinas, SP </a>. Rev. bras. meteorol. 36 (2) • Apr-Jun 2021
+
 ## Example
 The Heatwaves graph is:
 

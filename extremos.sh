@@ -51,7 +51,7 @@ function Percentil_min() { # Calculate the percentil about maximum temperature s
   ymin=(${year[0]})
   ymax=(${year[-1]})
   cdo selyear,${ymin}/${2} $1 tmax_ref.nc >>/dev/null
-  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null  #File .nc with temperature at period to avaliate
+  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null #File .nc with temperature at period to avaliate
   cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
   #Calculating percentil
@@ -83,18 +83,17 @@ function percentagem() {
   div=$((dif / soma))
 
 }
-function convertKelvin2Celsius(){ # if argument file is Kelvin, converto to celsius
+function convertKelvin2Celsius() { # if argument file is Kelvin, converto to celsius
   unidade=$(cdo showunit "$1" 2>/dev/null | head -n 1 | tr -d '[:space:]')
   echo "$unidade"
   if [ "$unidade" = "K" ]; then
-      echo "Unit is Kelvin. Converting to Celsius..."
-      tmpfile=$(mktemp)
-      cdo -chunit,K,Celsius -subc,273.15 "$1" "$tmpfile" && mv "$tmpfile" "$1"
+    echo "Unit is Kelvin. Converting to Celsius..."
+    tmpfile=$(mktemp)
+    cdo -chunit,K,Celsius -subc,273.15 "$1" "$tmpfile" && mv "$tmpfile" "$1"
   else
-      echo ""
+    echo ""
   fi
 }
-
 
 echo "Wich heatwave definition you will considerate?
 		1 -> Consider the OMM definition of heatwve
@@ -122,7 +121,7 @@ if [ $r == 1 ]; then
     python3 intern/anomaly.py
 
   else                                           #if file is separeted in two
-    python3 intern/heatwave.py netcdf/tmax.nc $7 #Create heatwave considering only tmax 
+    python3 intern/heatwave.py netcdf/tmax.nc $7 #Create heatwave considering only tmax
   fi
 
 elif [ $r == 2 ]; then
@@ -137,7 +136,7 @@ elif [ $r == 2 ]; then
     python3 intern/anomaly.py
   else #if file is separeted in two
     echo "Creating heatwave data"
-    
+
     python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc $7 $8 # Create heatwave considering tmax and tmin
     python3 intern/cumulative_heat.py                                       #generate cumumulative number of heatwaves
 
@@ -174,10 +173,10 @@ if [ ! -d imagens ]; then
 fi
 mv *.png imagens
 
-if [ ! -d dados ]; then
-  mkdir dados
+if [ ! -d data ]; then
+  mkdir data
 fi
-mv *.csv dados
+mv *.csv data
 
 #Remome trash data
 rm *.nc

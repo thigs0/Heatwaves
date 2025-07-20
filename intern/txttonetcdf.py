@@ -10,7 +10,26 @@ def main():
     columns =  ['Tmin', 'Tmax', 'Pr', 'Date', 'Lat', 'Lon']
     df = df[columns]
     df.columns = [i.lower() for i in columns]
-    df["time"] = pd.to_datetime(df["date"], format="%d/%m/%Y")
+    k=0
+
+    try:
+        df["time"] = pd.to_datetime(df["date"], format="%d/%m/%Y")
+    except:
+        k+=1
+
+    try:
+        df["time"] = pd.to_datetime(df["date"], format="%m-%d-%y")
+    except:
+        k+=1
+
+    try:
+        df["time"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
+    except:
+        k+=1
+
+
+    if k==3:
+        raise "Error datatime error format"
 
     df = df.drop_duplicates()
     df = df.drop(columns=["date"])
