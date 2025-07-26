@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv("tmax_ref.csv")
+df = pd.read_csv("heatwaves.csv")
 df.time = pd.to_datetime(df.time)
 df = df[ ~np.isnan(df.time) ]
 df = df.fillna(0)

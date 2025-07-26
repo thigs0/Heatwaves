@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 
-hw = pd.read_csv("tmax_ref.csv") #abre as ondas de calor
+hw = pd.read_csv("heatwaves.csv") #abre as ondas de calor
 hw.time = pd.to_datetime(hw.time)
 if  "Unnamed: 0" in hw.columns:
     hw = hw.drop(columns=["Unnamed: 0"])

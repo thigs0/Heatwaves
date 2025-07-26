@@ -97,7 +97,7 @@ def heatwave_Dataset(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, pe
         'greater': greater,
         'heatwave': heatwave_events,
     })
-    out_ds.to_dataframe().reset_index().to_csv("tmax_ref.csv", index=False)
+    out_ds.to_dataframe().reset_index().to_csv("heatwaves.csv", index=False)
     return out_ds
 
 def Season_heatwave(ds: xr.Dataset) -> xr.Dataset:

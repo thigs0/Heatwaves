@@ -72,7 +72,7 @@ def heatwave_Dataset(tmax: xr.Dataset, percentmax: xr.Dataset) -> xr.Dataset:
     })
 
     # Exporta para CSV (opcional)
-    out_ds.to_dataframe().reset_index().to_csv("tmax_ref.csv", index=False)
+    out_ds.to_dataframe().reset_index().to_csv("heatwaves.csv", index=False)
     return out_ds
 
 def Season_heatwave(ds: xr.Dataset) -> None:

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv("tmax_ref.csv")
+df = pd.read_csv("heatwaves.csv")
 df.time = pd.to_datetime(df.time)
 df[['tmean_heatwave', 'tlast30', 'EHF', 'EHI_sig', 'EHI_acc']] = np.nan
 
