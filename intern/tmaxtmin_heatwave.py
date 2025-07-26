@@ -75,7 +75,7 @@ def heatwave_Dataset(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, pe
     heatwave_events = heatwave_raw.copy(deep=True)
     heatwave_events[:] = 0
 
-    print("Marcando início das ondas de calor...")
+    print("Seting heatwave start...")
     for lat in range(len(heatwave_raw.lat)):
         for lon in range(len(heatwave_raw.lon)):
             i = 0
@@ -137,6 +137,7 @@ def Season_heatwave(ds: xr.Dataset) -> xr.Dataset:
     }, coords={"year": result["year"]})
 
     season_ds.to_dataframe().reset_index().to_csv("season_heatwave.csv", index=False)
+    season_ds.to_netcdf('season_heatwave.nc')
 
 def main(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, percentmin:xr.Dataset):
     #tmax é o nc de teperatura que iremos avaliar
@@ -153,6 +154,7 @@ def main(tmax:xr.Dataset, tmin:xr.Dataset, percentmax:xr.Dataset, percentmin:xr.
 
     ds = heatwave_Dataset(tmax, tmin, percentmax, percentmin) 
     Season_heatwave(ds.heatwave)
+    ds.to_netcdf('heatwaves.nc')
 
 if __name__ == "__main__":
     param1 = sys.argv[1] #tmax netcdf

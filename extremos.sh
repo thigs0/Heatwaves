@@ -177,6 +177,6 @@ if [ ! -d data ]; then
   mkdir data
 fi
 mv *.csv data
-
+mv heatwaves.nc season_heatwave.nc data
 #Remome trash data
 rm *.nc
