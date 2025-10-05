@@ -53,7 +53,7 @@ def heatwave_Dataset(tmax:xr.Dataset, percentmax:xr.Dataset) -> xr.Dataset: #ret
 
     i = 0
     while i < len(heatwave_raw.time):
-        if heatwave_raw.isel(time=i):
+        if heatwave_raw.isel(time=i).all():
             heatwave_events[i] = 1  # Mark of event start
             i += 3  #jump next two days (three days per event)
         else:
@@ -67,6 +67,7 @@ def heatwave_Dataset(tmax:xr.Dataset, percentmax:xr.Dataset) -> xr.Dataset: #ret
         'greater': greater,
         'heatwave': heatwave_events,
     })
+    out_ds.to_netcdf('heatwave_opt1set.nc')
     out_ds.to_dataframe().reset_index().to_csv("heatwave_ref.csv", index=False)
     return out_ds
 
@@ -113,7 +114,11 @@ def main(tmax:xr.Dataset, percentmax:xr.Dataset):
     #tmax é o nc de teperatura que iremos avaliar
     tmax = xr.open_dataset(tmax)
 
-    percentmax = xr.open_dataset('percentmax.nc')
+    try: #Some files come with valid_time name
+        tmax = tmax.rename({'valid_time': 'time'})
+    except:
+        pass
+    percentmax = xr.open_dataset(percentmax)
     time = pd.to_datetime(tmax.time.values)
 
     years = np.arange( tmax.time.dt.year[0].to_numpy().item(), tmax.time.dt.year[-1].to_numpy().item()+1 )
@@ -122,6 +127,7 @@ def main(tmax:xr.Dataset, percentmax:xr.Dataset):
 
     ds = heatwave_Dataset(tmax, percentmax) 
     Season_heatwave(ds.heatwave)
+    ds.to_netcdf('heatwave_opt1set.nc')
 
 if __name__ == "__main__":
     param1 = sys.argv[1] #tmax netcdf
