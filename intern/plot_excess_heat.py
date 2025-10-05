@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-df = pd.read_csv("tmax_ref.csv")
+df = pd.read_csv("heatwave_ref.csv")
 df.time = pd.to_datetime(df.time)
 
 years = df.time.dt.year.unique()

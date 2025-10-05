@@ -4,7 +4,7 @@ import xarray as xr
 
 def main():
     """This function make the txt file chenge to netcdf"""
-   #p1 é o arquivo txt que queremos converter para netcdf
+    #p1 is the file in txt that we want to convert to netcdf
     df = pd.read_csv("../dados/input.csv")
     #df.columns need be [Tmin, Tmax, Pr, Date, Lat, Lon]
     columns =  ['Tmin', 'Tmax', 'Pr', 'Date', 'Lat', 'Lon']

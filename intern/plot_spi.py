@@ -9,8 +9,7 @@ time = ds.time.values[ds.time.dt.year >= 1990]
 plt.style.use('ggplot')
 fig, ax = plt.subplots(figsize=(16, 9))
 t = 1
-for i,j in enumerate(spi):
-    
+for i,j in enumerate(spi):  
     if j.item() >0:
         ax.scatter(time[i], j.item(), color="blue")
     else:

@@ -30,7 +30,6 @@ def chance_dimension(p1, p2):
     ref_values = ref_values.fillna(0)
     ref_base = ref_values[var] if isinstance(ref_values, xr.Dataset) else ref_values
     ref_broadcasted = ref_base.broadcast_like(ds2[var])
-#    ref_broadcasted = ref_broadcasted.assign_coords(time=ds1_c.time)
     ref_broadcasted.to_netcdf('out.nc')
 
 if __name__ == "__main__":

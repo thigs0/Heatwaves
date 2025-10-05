@@ -26,13 +26,13 @@ function Percentil_max() { # This code calculate the percentil about minimum tem
   year=($year)
   ymin=(${year[0]})
   ymax=(${year[-1]})
-  cdo selyear,${ymin}/${2} $1 tmax_ref.nc >>/dev/null
-  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null #File .nc with temperature at period to avaliate
+  cdo selyear,${ymin}/${2} $1 heatwave_ref.nc >>/dev/null
+  cdo selyear,$(($2 + 1))/${ymax} $1 heatwave_f.nc >>/dev/null #File .nc with temperature at period to avaliate
   cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
   #creating the percent period of reference
-  cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmax.nc >>/dev/null
-  rm tmax_ref.nc
+  cdo ydrunpctl,$3,$4 heatwave_ref.nc -ydrunmin,$4 heatwave_ref.nc -ydrunmax,$4 heatwave_ref.nc percentmax.nc >>/dev/null
+  rm heatwave_ref.nc
 }
 
 function Percentil_min() { # Calculate the percentil about maximum temperature serie
@@ -50,13 +50,13 @@ function Percentil_min() { # Calculate the percentil about maximum temperature s
   year=($year)
   ymin=(${year[0]})
   ymax=(${year[-1]})
-  cdo selyear,${ymin}/${2} $1 tmax_ref.nc >>/dev/null
-  cdo selyear,$(($2 + 1))/${ymax} $1 tmax_f.nc >>/dev/null  #File .nc with temperature at period to avaliate
+  cdo selyear,${ymin}/${2} $1 heatwave_ref.nc >>/dev/null
+  cdo selyear,$(($2 + 1))/${ymax} $1 heatwave_f.nc >>/dev/null  #File .nc with temperature at period to avaliate
   cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
   #Calculating percentil
-  cdo ydrunpctl,$3,$4 tmax_ref.nc -ydrunmin,$4 tmax_ref.nc -ydrunmax,$4 tmax_ref.nc percentmin.nc >>/dev/null
-  rm tmax_ref.nc
+  cdo ydrunpctl,$3,$4 heatwave_ref.nc -ydrunmin,$4 heatwave_ref.nc -ydrunmax,$4 heatwave_ref.nc percentmin.nc >>/dev/null
+  rm heatwave_ref.nc
 }
 
 function SPI() {
@@ -66,7 +66,7 @@ function SPI() {
 
 function percentagem() {
   #At development
-  #Calcula o termo relativo de crescimento
+  #calculate the relative term
 
   year="$(cdo -S showyear $1 | head -n 4)"
   year=($year)
@@ -179,5 +179,5 @@ if [ ! -d dados ]; then
 fi
 mv *.csv dados
 
-#Remome trash data
+#Remove trash data
 rm *.nc

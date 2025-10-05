@@ -5,38 +5,30 @@ import warnings
 warnings.filterwarnings("ignore")
 
 def Linear_reg(df:pd.DataFrame) -> np.array:
-    #retorna um vetor com dois parâmetros da regressão linear
+    #return the vector with two paramns of linear regression
     if len(df.columns) == 2:
         a,b = np.polyfit(df.iloc[:, 0], df.iloc[:, 1], 1)
         return np.array([a,b])
     else:
-        raise("O dataframe precisa ter somente duas colunas")
+        raise("The dataframe need be only two columns")
 
 def Mann_Kendall_Test(df:pd.DataFrame):
-    """Retorna os parâmetros do teste de Mann Kendall"""
-
+    """Return the paramns of Mann Kendall test"""
     def sign(v):
-        if (v>0):
-            return 1
-        elif (v==0):
-            return 0
-        else:
-            return -1
+        if (v>0):   return 1
+        elif (v==0):return 0
+        else:       return -1
     def p_value(s):
-        if (s>0):
-            return (s-1)/np.std(np.array(df.iloc[:,1]))  
-        elif (s==0):
-            return 0
-        else:
-            return (s+1)/np.std(np.array(df.iloc[:, 1]))
+        if (s>0):   return (s-1)/np.std(np.array(df.iloc[:,1]))  
+        elif (s==0):return 0
+        else:       return (s+1)/np.std(np.array(df.iloc[:, 1]))
     s = 0
     for i in range(len(df)):
         for j in range(i, len(df)):
             s += sign(df.iloc[j,1] - df.iloc[i, 1])
     return (s, p_value(s)) 
         
-#gera os mesmos gráficos para heatwave e salva
-
+#generate the same graph of heatwave and save
 plt.style.use('ggplot')
 df = pd.read_csv("season_heatwave.csv")
 fig, axs = plt.subplots(2, 2)

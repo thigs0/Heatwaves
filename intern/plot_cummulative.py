@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv("tmax_ref.csv")
+df = pd.read_csv("heatwave_ref.csv")
 df.time = pd.to_datetime(df.time)
 df = df[ ~np.isnan(df.time) ]
 df = df.fillna(0)
@@ -21,7 +21,6 @@ axs.set_xlabel("Anos")
 axs.set_title("Soma das anomalías de temperatura por ano dividido pelo número de ondas de calor")
 axs.set_ylabel('Acumulado de anomalias')
 axs.tick_params(axis='x', rotation = 45)
-#fig.tight_layout()
 plt.savefig("cummulative.png", dpi=300)
 
 print('construindo gráfico da anomalia')
@@ -33,4 +32,4 @@ plt.title('Onda de calor registrada em cada data e sua anomalia')
 plt.ylabel('Onda de calor')
 plt.savefig('anomaly.png', dpi=300)
 
-print('feito')
+print('Done')

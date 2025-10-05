@@ -11,4 +11,4 @@ for i,j in enumerate(df['heatwave']):
         df.loc[i, 'cummulative'] = df.loc[i:i+2, 'tmax'].sum() - df.loc[i:i+2, 'refmax'].sum()
 
 
-df.to_csv('tmax_ref.csv', index=False)
+df.to_csv('heatwave_ref.csv', index=False)

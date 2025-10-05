@@ -1,5 +1,5 @@
 """
-    Este código calcula o SPI do arquivo netcdf4 com a precipitação 
+    This code calculate the SPI of netcdf4 file with precipitation
 """
 
 import xarray as xr
@@ -12,9 +12,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 def main(pr):
-    #pr é o netcdf de precipitação completo
-
-    ds = xr.open_dataset(pr) #média multi-year da referência
+    #pr is the complete netcdf4 of precipitation
+    ds = xr.open_dataset(pr) #multi-year mean of reference
     ds_cal = ds.sel(time = ds.time[ ds.time.dt.year<1991 ])
     ds = ds.sortby("time")
     ds_cal = ds_cal.sortby("time")
@@ -24,11 +23,11 @@ def main(pr):
     ds = xclim.indices.standardized_precipitation_index(ds['pr'], pr_cal=ds_cal["pr"],
             cal_start= f"{ds_cal.time[0].dt.year}-01-01", 
             cal_end=f"{ds_cal.time[n-1].dt.year}-12-31", freq='MS')
-    # Adicionar o resultado ao conjunto de dados original
+    # add the result to our set of original data
     ds.to_netcdf("spi.nc")
 
 if __name__ == "__main__":
     parametro1 = sys.argv[1]
 
-    # Chama a função com os parâmetros fornecidos
+    # call the function with paramns gived
     main(parametro1)
