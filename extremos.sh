@@ -111,14 +111,17 @@ if [ $r == 1 ]; then
     python3 intern/heatwave.py netcdf/tmax.nc ./percentmax.nc #Calculating heatwaves
 
     echo "Creating heatwave data"
-    python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Create heatwave considering tmax and tmin
-    python3 intern/cumulative_heat.py                                                                 #generate cumumulative number of heatwaves
-
-    #python3 intern/plot_cummulative.py
-    python3 intern/anomaly.py
+    tvar=$(cdo griddes ./percentmax.nc | grep "xsize" | awk '{print $3}')
+    if [ ${tvar} ] >1; then
+      python3 intern/graph_heatwave_region.py 1 'heatwave_opt1set.nc'
+    else
+      python3 intern/cumulative_heat.py #generate cumumulative number of heatwaves
+      python3 intern/anomaly.py
+    fi
 
   else                                           #if file is separeted in two
     python3 intern/heatwave.py netcdf/tmax.nc $7 #Create heatwave considering only tmax
+    mv heatwave_opt1set.nc output/
   fi
 
 elif [ $r == 2 ]; then
@@ -160,15 +163,11 @@ elif [ $r == 5 ]; then
 
 fi
 
-#Gera regressão linear e teste de tendência
-python3 intern/plot.py
-#python3 intern/linear_season.py
-
 #Organize files in directories
-if [ ! -d imagens ]; then
-  mkdir imagens
+if [ ! -d img ]; then
+  mkdir img
 fi
-mv *.png imagens
+mv *.png img
 
 if [ ! -d dados ]; then
   mkdir dados
