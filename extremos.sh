@@ -96,7 +96,7 @@ echo "Wich heatwave definition you will considerate?
 		1 -> Consider the OMM definition of heatwve
 		2 -> Consider the OMM definition with mininum temperature
 		3 -> Consider the Gueirinhas definition and request precipitation file
-		4 -> Consider 3 hotdays and tmax to define heatwave
+		4 -> Consider 3 hotdays or more tmax to define heatwave
 		5 -> Consider 3 hotdays or more to tmax and tmin to define heatwave"
 
 read r
@@ -108,8 +108,7 @@ if [ $r == 1 ]; then
   if [ -z "$7" ]; then #if file tmax reference is't passed
     Percentil_max $1 $(($2 - 1)) $3 $4 $5
     echo "Creating heatwave data"
-    python3 intern/heatwave.py netcdf/tmax.nc ./percentmax.nc #Calculating heatwaves
-
+    python3 intern/heatwave_opt1set.py $1 ./percentmax.nc #Calculating heatwaves
     echo "Creating heatwave data"
     tvar=$(cdo griddes ./percentmax.nc | grep "xsize" | awk '{print $3}')
     if [ ${tvar} ] >1; then
@@ -118,29 +117,24 @@ if [ $r == 1 ]; then
       python3 intern/cumulative_heat.py #generate cumumulative number of heatwaves
       python3 intern/anomaly.py
     fi
-
-  else                                           #if file is separeted in two
-    python3 intern/heatwave.py netcdf/tmax.nc $7 #Create heatwave considering only tmax
-    mv heatwave_opt1set.nc output/
+  else                                                   #if file is separeted in two
+    python3 intern/heatwave_opt1set.py netcdf/tmax.nc $7 #Create heatwave considering only tmax
   fi
+  mv heatwave_opt1set.nc output/
 
 elif [ $r == 2 ]; then
   if [ -z "$7" ]; then #if file tmax reference is't passed
     Percentil_max $1 $(($2 - 1)) $3 $4 $5
     Percentil_min $6 $(($2 - 1)) $3 $4 $5
     echo "Creating heatwave data"
-    python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Create heatwave considering tmax and tmin
-    python3 intern/cumulative_heat.py                                                                 #generate cumumulative number of heatwaves
-
-    #python3 intern/plot_cummulative.py
-    python3 intern/anomaly.py
+    tvar=$(cdo griddes ./percentmax.nc | grep "xsize" | awk '{print $3}')
+    if [ ${tvar} ] >1; then
+      python3 intern/heatwave_opt2set.py $1 $6 ./percentmax.nc ./percentmin.nc # Create heatwave considering tmax and tmin
+      python3 intern/graph_heatwave_region.py 1 'heatwave_opt2set.nc'
+    fi
   else #if file is separeted in two
     echo "Creating heatwave data"
-
-    python3 intern/tmaxtmin_heatwave.py netcdf/tmax.nc netcdf/tmin.nc $7 $8 # Create heatwave considering tmax and tmin
-    python3 intern/cumulative_heat.py                                       #generate cumumulative number of heatwaves
-
-    #python3 intern/plot_cummulative.py
+    python3 intern/heatwave_opt2set.py $1 $6 $7 $8 # Create heatwave considering tmax and tmin
     python3 intern/anomaly.py
   fi
 
@@ -153,7 +147,9 @@ elif [ $r == 4 ]; then
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
   echo "Creating heatwave data"
 
-  python3 intern/heatwave3ormore.py netcdf/tmax.nc ./percentmax.nc # Create heatwaves considering tmax and pecipitation (spi file)
+  ##python3 intern/heatwave3ormore.py netcdf/tmax.nc ./percentmax.nc # Create heatwaves considering tmax and pecipitation (spi file)
+  python3 intern/heatwave_opt4set.py $1 ./percentmax.nc
+
 elif [ $r == 5 ]; then
   Percentil_max $1 $(($2 - 1)) $3 $4 $5
   Percentil_min $6 $(($2 - 1)) $3 $4 $5
