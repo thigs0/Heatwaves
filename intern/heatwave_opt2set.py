@@ -11,37 +11,63 @@ import warnings
 warnings.filterwarnings("ignore")
 
 def hotdays(ds, ds_norm, ds2, ds2_norm) -> xr.Dataset:
-    timer=len(ds.time.values)
-    out = xr.zeros_like(ds, dtype=bool)
+    # Create a copy but only modify variables with time dimension
+    out = ds.copy()
+    
+    # Identify which variables have time dimension
+    temporal_vars = [var for var in ds.data_vars if 'time' in ds[var].dims]
+    
+    # Initialize temporal variables as boolean arrays
+    for var in temporal_vars:
+        out[var] = xr.zeros_like(ds[var], dtype=bool)
 
-    # Percorre cada data do dataset original
+    # Pre-compute day-of-year climatologies
+    ds_norm_doy = ds_norm.groupby(ds_norm.time.dt.dayofyear).mean()
+    ds2_norm_doy = ds2_norm.groupby(ds2_norm.time.dt.dayofyear).mean()
+
     with alive_bar(len(ds.time)) as bar:
         for i, date in enumerate(ds.time):
-            # export the date value
             this_date = date.values
-            month = date.dt.month.item()
-            day = date.dt.day.item()
+            doy = date.dt.dayofyear.item()
 
-            # current date
+            # Current values
             ds1_current = ds.sel(time=this_date)
             ds2_current = ds2.sel(time=this_date)
 
-            # Valor normal para aquele dia/mês
-            ds1_nor = ds_norm.sel(time=((ds_norm.time.dt.month == month) & 
-                                        (ds_norm.time.dt.day == day))).isel(time=0)
-            ds2_nor = ds2_norm.sel(time=((ds_norm.time.dt.month == month) & 
-                                        (ds_norm.time.dt.day == day))).isel(time=0)
+            # Normal values using day-of-year
+            try:
+                ds1_nor = ds_norm_doy.sel(dayofyear=doy)
+            except KeyError:
+                ds1_nor = ds_norm.mean(dim='time')
+            
+            try:
+                ds2_nor = ds2_norm_doy.sel(dayofyear=doy)
+            except KeyError:
+                ds2_nor = ds2_norm.mean(dim='time')
 
-            # Marca como True se for mais quente que o normal
-            out.loc[dict(time=this_date)] = ((ds1_current > ds1_nor)&(ds2_current > ds2_nor)).astype(int)
-            bar() # Update the progress bar
+            # Calculate condition
+            condition = (ds1_current > ds1_nor) & (ds2_current > ds2_nor)
+            
+            # Update only temporal variables
+            for var in temporal_vars:
+                if var in condition.data_vars:
+                    out[var].loc[dict(time=this_date)] = condition[var]
+            
+            bar()
 
     return out
 
 def heatwave(ds, n:int):
     # Cria uma cópia booleana com False por padrão
     ds = ds.astype(int)
-    out = xr.zeros_like(ds, dtype=int)
+    out = ds.copy()
+    
+    # Identify which variables have time dimension
+    temporal_vars = [var for var in ds.data_vars if 'time' in ds[var].dims]
+    
+    # Initialize temporal variables as boolean arrays
+    for var in temporal_vars:
+        out[var] = xr.zeros_like(ds[var], dtype=bool)
 
     # Percorre cada data do dataset original
     len_date = len(ds.time[:-n+1])-1
@@ -51,7 +77,11 @@ def heatwave(ds, n:int):
                 heat = np.zeros(len_date+n)
                 i = 0
                 while i < len_date:
-                    value = ds.sel(time=ds.time.values[i:i + n + 1], lat=lat, lon=lon)
+                    try:
+                        value = ds.tmax.sel(time=ds.time.values[i:i + n + 1], lat=lat, lon=lon)
+                    except:
+                        value = ds.tmin.sel(time=ds.time.values[i:i + n + 1], lat=lat, lon=lon)
+                    
                     if sum(value.values) == n:
                         heat[i] = 1
                         i+=3
@@ -61,35 +91,13 @@ def heatwave(ds, n:int):
                         bar() # Update the progress bar
                 #out.sel(lat=lat, lon=lon)
                 # Marca como True se for mais quente que o normal
-                out.loc[dict(lat=lat, lon=lon)] = heat 
+                print(out)
+                try:
+                    out.tmax.loc[dict(lat=lat, lon=lon)] = heat 
+                except:
+                    out.tmin.loc[dict(lat=lat, lon=lon)] = heat 
 
     return out
-
-
-def Season_heatwave(df:xr.Dataset) -> None:
-    """
-        Recive a dataframe with one if the day had heatwave event and zero else. 
-        Than we create a dataframe with heatwaves per season"""
-    hw = pd.DataFrame(columns=["time","1","2","3","4"]) #dataframe with results
-    hw["time"] = np.arange(df["time"][0].year, df["time"][len(df)-1].year+1) # each year
-    
-    for i,j in enumerate(hw["time"][:]):
-        #dez jan feb
-        t = df[((df["time"].dt.year == j-1)&(df["time"].dt.month==12)|(df["time"].dt.year==j)&(df["time"].dt.month <= 2))] #data avaliada
-        hw["1"][i] = np.sum(t["cdh"])
-
-        #mar apr may
-        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=3)&(df["time"].dt.month <= 5)) ]
-        hw["2"][i] = np.sum(t["cdh"])
-
-        #jun jul ago
-        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=6)&(df["time"].dt.month <= 8)) ]
-        hw["3"][i] = np.sum(t["cdh"])
-
-        #sep out nov
-        t = df[ ((df["time"].dt.year == j)&(df["time"].dt.month >=9)&(df["time"].dt.month <= 11)) ]
-        hw["4"][i] = np.sum(t["cdh"])
-    hw.to_csv("season_heatwave.csv")
 
 def main(tmax, tmin, percentmax, percentmin):
     #tmax is the netcdf temperature that we use
@@ -117,9 +125,9 @@ def main(tmax, tmin, percentmax, percentmin):
         pass
 
     print("Calculating hotdays")
-    ds = hotdays(tmax, percentmax, tmin, percentmin) 
+    greater = hotdays(tmax, percentmax, tmin, percentmin) 
     print("Calculating heatwaves")
-    Season_heatwave(ds.heatwave)
+    ds = heatwave(greater, 3)
     ds.to_netcdf('heatwave_opt2set.nc')
 
 if __name__ == "__main__":

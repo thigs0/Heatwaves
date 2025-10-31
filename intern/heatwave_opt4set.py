@@ -86,7 +86,7 @@ def heatwave_Dataset(tmax, percentmax) -> xr.Dataset: #return a dataframe with t
     print("Calculating the heatwaves")
     heatwave_events = heatwave(greater, 3)
 
-    refmax = percentmax.tmax
+    refmax = percentmax
     #out netcdf
     out_ds = xr.Dataset({
         'tmax': tmax,
@@ -94,8 +94,7 @@ def heatwave_Dataset(tmax, percentmax) -> xr.Dataset: #return a dataframe with t
         'greater': greater,
         'heatwave': heatwave_events,
     })
-    out_ds.to_netcdf('heatwave_opt1set.nc')
-    out_ds.to_dataframe().reset_index().to_csv("heatwave_ref.csv", index=False)
+    out_ds.to_netcdf('heatwave_opt4set.nc')
     return out_ds
 
 def main(tmax, percentmax):
@@ -118,7 +117,6 @@ def main(tmax, percentmax):
     print(years)
 
     ds = heatwave_Dataset(tmax, percentmax) 
-    ds.to_netcdf('heatwave_opt4set.nc')
 
 if __name__ == "__main__":
     param1 = sys.argv[1] #tmax netcdf
