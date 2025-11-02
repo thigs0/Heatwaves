@@ -6,6 +6,7 @@ from alive_progress import alive_bar
 import xarray as xr
 import sys
 import warnings
+import gc
 warnings.filterwarnings("ignore")
 
 def main(tmin):
@@ -24,6 +25,8 @@ def main(tmin):
         pass
     
     tmin.tmin.to_netcdf('temporary/temporary_tmin.nc')
+    del tmin
+    gc.collect()
 
 if __name__ == "__main__":
     parametro1 = sys.argv[1]

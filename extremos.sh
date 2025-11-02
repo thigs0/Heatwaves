@@ -24,7 +24,7 @@ function Percentil_max() { # This code calculate the percentil about minimum tem
   echo "Creating percent of maximum temperature file"
   year="$(cdo -S showyear $1 | head -n 4)"
   year=($year)
-  ymin=(${year[0]})
+  ymin=${year[1]}
   ymax=(${year[-1]})
   cdo selyear,${ymin}/${2} $1 heatwave_ref.nc >>/dev/null
   cdo selyear,$(($2 + 1))/${ymax} $1 heatwave_f.nc >>/dev/null #File .nc with temperature at period to avaliate
@@ -33,7 +33,7 @@ function Percentil_max() { # This code calculate the percentil about minimum tem
   #creating the percent period of reference
   cdo ydrunpctl,$3,$4 heatwave_ref.nc -ydrunmin,$4 heatwave_ref.nc -ydrunmax,$4 heatwave_ref.nc ./percentmax.nc >>/dev/null
   echo "calculated percentile of maximum temperature"
-  rm heatwave_ref.nc
+  rm heatwave_ref.nc heatwave_f.nc pr_ref.nc
 }
 
 function Percentil_min() { # Calculate the percentil about maximum temperature serie
@@ -57,37 +57,20 @@ function Percentil_min() { # Calculate the percentil about maximum temperature s
 
   #Calculating percentil
   cdo ydrunpctl,$3,$4 heatwave_ref.nc -ydrunmin,$4 heatwave_ref.nc -ydrunmax,$4 heatwave_ref.nc percentmin.nc >>/dev/null
-  rm heatwave_ref.nc
+  rm heatwave_ref.nc heatwave_f.nc pr_ref.nc
 }
 
 function preload_tmax_tmin() { # This code load file at temporary directory and chanhe some paramns
-  #Finding the period of years at file
   python3 intern/preload_tmax.py $1
-  python3 intern/preload_tmin.py $6
+  python3 intern/preload_tmin.py $2
 }
 
-function SPI() { #1 it's the daily precipitation netcdf file, like (1961-2024)
-  python3 intern/spi.py $5 #Calculate the SPI index and save with name "spi.nc"
+function preload_tmax(){ #This code load file at temporary directory and chanhe some paramns
+  python3 intern/preload_tmax.py $1
 }
 
-function percentagem() { #calculate the relative term
-  #At development
-  
-
-  year="$(cdo -S showyear $1 | head -n 4)"
-  year=($year)
-  ymin=(${year[0]})
-  ymax=(${year[-1]})
-
-  cdo selyear,1980/1998 spi.nc hist.nc >>/dev/null
-  cdo sum hist.nc soma_hist.nc >>/dev/null
-  cdo selyear,1999/${ymax} $1 ref.nc >>/dev/null
-  cdo sum ref.nc soma_ref.nc >>/dev/null
-
-  dif=$((soma_hist.nc - soma_ref.nc))
-  soma=$((soma_hist.nc + soma_ref.nc))
-  div=$((dif / soma))
-
+function preload_tmin(){ #This code load file at temporary directory and chanhe some paramns
+  python3 intern/preload_tmin.py $1
 }
 
 function convertKelvin2Celsius() { # if argument file is Kelvin, converto to celsius
@@ -111,8 +94,10 @@ read r
 convertKelvin2Celsius $1
 convertKelvin2Celsius $6
 
+mkdir temporary
+
 if [ $r == 1 ]; then
-  preload_tmax();
+  preload_tmax $1
   if [ -z "$7" ]; then #if file tmax reference is't passed
     Percentil_max temporary/temporary_tmax.nc $(($2 - 1)) $3 $4 $5
     echo "Creating heatwave data"
@@ -120,44 +105,41 @@ if [ $r == 1 ]; then
     echo "Creating heatwave data"
     tvar=$(cdo griddes ./percentmax.nc | grep "xsize" | awk '{print $3}')
     if [ ${tvar} ] > 1; then
-      python3 intern/graph_heatwave_region.py temporary/temporary_tmax.nc 'heatwave_opt1set.nc'
+      python3 intern/graph_heatwave_region.py temporary/temporary_tmax.nc heatwave_opt1set.nc
     fi
   else                                                   #if file is separeted in two
     python3 intern/heatwave_opt1set.py netcdf/tmax.nc $7 #Create heatwave considering only tmax
   fi
 
 elif [ $r == 2 ]; then
-  preload_tmax_tmin();
+  preload_tmax_tmin $1 $6
   if [ -z "$7" ]; then #if file tmax reference is't passed
     Percentil_max temporary/temporary_tmax.nc $(($2 - 1)) $3 $4 $5
     Percentil_min temporary/temporary_tmin.nc $(($2 - 1)) $3 $4 $5
     echo "Creating heatwave data"
-    tvar=$(cdo griddes ./percentmax.nc | grep "xsize" | awk '{print $3}')
-    if [ ${tvar} ] > 1; then
-      python3 intern/heatwave_opt2set.py temporary/temporary_tmax.nc temporary/temporary_tmin.nc ./percentmax.nc ./percentmin.nc # Create heatwave considering tmax and tmin
-      python3 intern/graph_heatwave_region.py 1 'heatwave_opt2set.nc'
-    fi
+    python3 intern/heatwave_opt2set.py temporary/temporary_tmax.nc temporary/temporary_tmin.nc ./percentmax.nc ./percentmin.nc # Create heatwave considering tmax and tmin
+    #python3 intern/graph_heatwave_region.py 1 heatwave_opt2set.nc
+
   else #if file is separeted in two
     echo "Creating heatwave data"
     python3 intern/heatwave_opt2set.py temporary/temporary_tmax.nc temporary/temporary_tmin.nc $7 $8 # Create heatwave considering tmax and tmin
   fi
 
 elif [ $r == 3 ]; then
-  spi=$(SPI $5)
-  python3 intern/geirinhas.py netcdf/tmax.nc -0.5 cdh_-05.csv # Create heatwaves considering tmax and pecipitation (spi file)
+  echo "At development"
 
 elif [ $r == 4 ]; then
-  preload_tmax();
+  preload_tmax $1
   Percentil_max temporary/temporary_tmax.nc $(($2 - 1)) $3 $4 $5
   echo "Creating heatwave data"
   python3 intern/heatwave_opt4set.py temporary/temporary_tmax.nc ./percentmax.nc
 
 elif [ $r == 5 ]; then
-  preload_tmax_tmin();
+  preload_tmax_tmin $1 $6
   Percentil_max temporary/temporary_tmax.nc $(($2 - 1)) $3 $4 $5
   Percentil_min temporary/temporary_tmin.nc $(($2 - 1)) $3 $4 $5
   echo "Creating heatwave data"
-  python3 intern/heatwave3ormoretmaxtmin.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc # Create heatwaves considering tmax and pecipitation (spi file)
+  python3 intern/heatwave3ormoretmaxtmin.py netcdf/tmax.nc netcdf/tmin.nc ./percentmax.nc ./percentmin.nc 
 fi
 
 #Organize files in directories
@@ -171,4 +153,4 @@ if [ ! -d output ]; then
 fi
 #Remove trash data
 mv heatwave*.nc output
-#rm *.nc
+rm -rf temporary

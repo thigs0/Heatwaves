@@ -33,20 +33,6 @@ def heat_opt1(ds:str) -> None:
             fig.colorbar(plot_obj, cax=cbar_ax, label='Hotdays per year')
     plt.savefig('hotdays_opt1set.png')
     plt.close()
-    #Hot days plot
-    plot_obj = None
-    fig, ax = plt.subplots(3,5, figsize=(20, 12), dpi=300)
-    for i in range(3):
-        for j in range(5):
-            plot_obj = ds.refmax.sel(
-                time = ds.time.dt.year == 2010+i*5+j
-                ).mean(dim='time').plot(ax=ax[i,j], add_colorbar=False, vmin=10, vmax=30)
-            ax[i,j].set_title(f'year {i*5+j+2010}')
-            plt.plot()
-            cbar_ax = fig.add_axes([0.88, 0.15, 0.02, 0.7])  # [left, bottom, width, height]
-            fig.colorbar(plot_obj, cax=cbar_ax, label='Hotdays per year')
-    plt.savefig('temperature_average_opt1set.png')
-
 
 
 def main(p1:int, ds:str):

@@ -6,6 +6,7 @@ from alive_progress import alive_bar
 import xarray as xr
 import sys
 import warnings
+import gc
 warnings.filterwarnings("ignore")
 
 def main(tmax):
@@ -24,6 +25,8 @@ def main(tmax):
         pass
     
     tmax.tmax.to_netcdf('temporary/temporary_tmax.nc')
+    del tmax
+    gc.collect()
 
 if __name__ == "__main__":
     parametro1 = sys.argv[1]

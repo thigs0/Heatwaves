@@ -21,10 +21,8 @@ def hotdays(ds, ds_norm):
             this_date = date.values
             month = date.dt.month.item()
             day = date.dt.day.item()
-
             # Valor do dia atual
             current_val = ds.sel(time=this_date)
-
             # Valor normal para aquele dia/mês
             try:
                 normal_val = ds_norm.sel(time=((ds_norm.time.dt.month == month) & 
@@ -33,8 +31,7 @@ def hotdays(ds, ds_norm):
                 normal_val = xr.zeros_like(ds_norm, dtype=bool)*6000
                 print(f'Error with date {day}/{month}')
             print(current_val)
-            # Marca como True se for mais quente que o normal
-            out.loc[dict(time=this_date)] = (current_val > normal_val).astype(int)
+            out.loc[dict(time=this_date)] = (current_val > normal_val).astype(int) # Marca como True se for mais quente que o normal
             bar() # Update the progress bar
 
     return out
@@ -59,10 +56,8 @@ def heatwave(ds, n:int):
                         bar(3) # Update the progress bar
                     else:
                         i+=1
-                        bar() # Update the progress bar
-                #out.sel(lat=lat, lon=lon)
-                # Marca como True se for mais quente que o normal
-                out.loc[dict(lat=lat, lon=lon)] = heat 
+                        bar() # Update the progress bar               
+                out.loc[dict(lat=lat, lon=lon)] = heat # Marca como True se for mais quente que o normal
 
     return out
 
@@ -74,8 +69,8 @@ def anomaly(hotdays, reference, percent, n:int):
     # Percorre cada data do dataset original
     len_date = len(hotdays.time[:-n+1])-1
     with alive_bar(len_date * len(hotdays.lat.values) * len(hotdays.lon.values)) as bar:
-        for lat in ds.lat.values:
-            for lon in ds.lon.values:
+        for lat in hotdays.lat.values:
+            for lon in hotdays.lon.values:
                 anoma = np.zeros(len_date+n)
                 i = 0
                 while i < len_date:
@@ -88,78 +83,9 @@ def anomaly(hotdays, reference, percent, n:int):
                         i+=1
                         anoma[i] = 0
                         bar() # Update the progress bar
-                #out.sel(lat=lat, lon=lon)
                 # Marca como True se for mais quente que o normal
                 out.loc[dict(lat=lat, lon=lon)] = anoma
     return out
-
-def heatwave_Dataset(tmax, percentmax) -> xr.Dataset: #return a dataframe with temperature and reference
-    tmax = tmax.where(tmax.time.dt.year > 1990, drop=True)
-
-    tmax = tmax['tmax'].fillna(0) if isinstance(tmax, xr.Dataset) else tmax.fillna(0)
-    percentmax = percentmax['tmax'] if isinstance(percentmax, xr.Dataset) else percentmax
-
-    years = np.arange( tmax.time.dt.year[0].to_numpy().item(), tmax.time.dt.year[-1].to_numpy().item()+1 )
-    #rename coords of tmax, tmin, percentmax and percentmin 
-    if "latitude" in tmax.coords:
-        ds = tmax.rename({"latitude": "lat"})
-    if "longitude" in tmax.coords:
-        ds = tmax.rename({"longitude": "lon"})
-    if "latitude" in percentmax.coords:
-        ds = percentmax.rename({"latitude": "lat"})
-    if "longitude" in percentmax.coords:
-        ds = percentmax.rename({"longitude": "lon"})
-
-    """
-    # Add dayofyear at dataframe and percentmax
-    percentmax = percentmax.assign_coords(dayofyear=percentmax.time.dt.dayofyear)
-    percent_daily = percentmax.groupby('dayofyear').mean(dim='time')
-    percent_daily = percent_daily.assign_coords(dayofyear=percent_daily['dayofyear'])
-    data_dayofyear = tmax.time.dt.dayofyear
-    percentmax_expanded = percent_daily.sel(dayofyear=data_dayofyear, method='nearest')
-    percentmax_expanded = percentmax_expanded.assign_coords(time=tmax.time)
-    percentmax = percentmax_expanded
-
-    percentmax = percentmax.broadcast_like(tmax)
-    percentmax = percentmax.sel(lat=tmax.lat.values, lon=tmax.lon.values).fillna(0) #If some coordenates wrongs come, ignore
-    percentmax = percentmax.drop_vars('dayofyear')
-    """
-
-    #Calcule heatwave
-    print('Calculating hotdays')
-    greater = hotdays(tmax, percentmax)
-    print("Calculating the heatwaves")
-    heatwave_events = heatwave(greater, 3)
-    print("Calculating the heatwave anomaly")
-    anomaly_value = anomaly(greater, tmax, percentmax, 3)
-    """
-    rolling_sum = greater.rolling(time=3).sum()
-    heatwave_raw = (rolling_sum >= 3).shift(time=-2).fillna(0).astype(int)
-
-    #Create a mask to register only the first day and jump others
-    heatwave_events = heatwave_raw.copy(deep=True)
-    heatwave_events[:] = 0
-
-    i = 0
-    while i < len(heatwave_raw.time):
-        if heatwave_raw.isel(time=i).any():
-            heatwave_events[i] = 1  # Mark of event start
-            i += 3  #jump next two days (three days per event)
-        else:
-            i += 1
-    """
-
-    refmax = percentmax.broadcast_like(tmax)
-    #out netcdf
-    out_ds = xr.Dataset({
-        'tmax': tmax,
-        'refmax': refmax,
-        'greater': greater,
-        'anomaly': anomaly_value,
-        'heatwave': heatwave_events,
-    })
-    out_ds.to_netcdf('heatwave_opt1set.nc')
-    return out_ds
 
 def Season_heatwave(ds: xr.Dataset):
     """
@@ -200,28 +126,39 @@ def Season_heatwave(ds: xr.Dataset):
 
     season_ds.to_dataframe().reset_index().to_csv("season_heatwave.csv", index=False)
 
+def heatwave_Dataset(tmax, percentmax) -> xr.Dataset: #return a dataframe with temperature and reference
+    tmax = tmax.where(tmax.time.dt.year > 1990, drop=True)
+
+    tmax = tmax['tmax'].fillna(0) if isinstance(tmax, xr.Dataset) else tmax.fillna(0)
+    percentmax = percentmax['tmax'] if isinstance(percentmax, xr.Dataset) else percentmax
+
+    print('Calculating hotdays')
+    greater = hotdays(tmax, percentmax)
+    print("Calculating the heatwaves")
+    heatwave_events = heatwave(greater, 3)
+    print("Calculating the heatwave anomaly")
+    anomaly_value = anomaly(greater, tmax, percentmax, 3)
+
+    refmax = percentmax.broadcast_like(tmax)
+    out_ds = xr.Dataset({ #out netcdf
+        'tmax': tmax,
+        'refmax': refmax,
+        'greater': greater,
+        'anomaly': anomaly_value,
+        'heatwave': heatwave_events,
+    })
+    out_ds.to_netcdf('heatwave_opt1set.nc')
+    return out_ds
+
 def main(tmax, percentmax):
     tmax = xr.open_dataset(tmax)
-
-    try: #Some files come with valid_time name
-        tmax = tmax.rename({'valid_time': 'time'})
-    except:
-        pass
-    percentmax = xr.open_dataset(percentmax)
-    try: #Some files come with valid_time name
-        percentmax = percentmax.rename({'valid_time': 'time'})
-    except:
-        pass
- 
-    time = pd.to_datetime(tmax.time.values)
-
     years = np.arange( tmax.time.dt.year[0].to_numpy().item(), tmax.time.dt.year[-1].to_numpy().item()+1 )
     print("The Heatwaves are of these years:")
     print(years)
 
     ds = heatwave_Dataset(tmax, percentmax) 
-    Season_heatwave(ds.heatwave)
     ds.to_netcdf('heatwave_opt1set.nc')
+    del ds
 
 if __name__ == "__main__":
     param1 = sys.argv[1] #tmax netcdf
