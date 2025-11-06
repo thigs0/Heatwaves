@@ -8,24 +8,24 @@ def heatwave(dataset_tmax:xr.Dataset, dataset_tmin:xr.Dataset, percent_tmax:xr.D
              ,opt:int, n:int, with_anomaly=False, with_season=False) -> xr.Dataset:
     match opt:
         case 1:
-            greater = hotdays(dataset_tmax, percent_tmax, dataset_tmin, percent_tmin)
+            greater = hotdays_opt1(dataset_tmax, percent_tmax)
             if with_anomaly:
                 return xr.Dataset()
             else:
                 return xr.Dataset()
         
         case 2:
-            greater = hotdays(dataset_tmax, percent_tmax, dataset_tmin, percent_tmin) 
+            greater = hotdays_opt2(dataset_tmax, percent_tmax, dataset_tmin, percent_tmin) 
             if with_anomaly:
-                return heatwave_opt2(greater, n)
-            else:
                 return heatwave_opt2_with_anomaly(greater, dataset_tmax, percent_tmax, n)
+            else:
+                return heatwave_opt2(greater, n)
 
         case 3:
             return xr.Dataset()
         
         case 4:
-            greater = hotdays(dataset_tmax, percent_tmax, dataset_tmin, percent_tmin)
+            greater = hotdays_opt2(dataset_tmax, percent_tmax, dataset_tmin, percent_tmin)
             if with_anomaly:
                 return xr.Dataset()
             else:
@@ -34,51 +34,63 @@ def heatwave(dataset_tmax:xr.Dataset, dataset_tmin:xr.Dataset, percent_tmax:xr.D
         case _:
             raise ValueError("Invalid value")
         
-def hotdays(ds:xr.Dataset, ds_norm:xr.Dataset, ds2:xr.Dataset, ds2_norm:xr.Dataset) -> xr.Dataset:
-    # Create a copy but only modify variables with time dimension
+def hotdays_opt2(ds, ds_norm, ds2, ds2_norm) -> xr.Dataset:
     out = ds.copy()
+    print(ds)
     
-    # Identify which variables have time dimension
-    temporal_vars = [var for var in ds.data_vars if 'time' in ds[var].dims]
-    
-    # Initialize temporal variables as boolean arrays
-    
-    out['greater'] = xr.zeros_like(ds[temporal_vars[0]], dtype=bool)
+    # Initialize heatwave variable with False values
+    out['greater'] = xr.zeros_like(ds.tmax, dtype=bool)
 
-    # Pre-compute day-of-year climatologies
-    ds_norm_doy = ds_norm.groupby(ds_norm.time.dt.dayofyear).mean()
-    ds2_norm_doy = ds2_norm.groupby(ds2_norm.time.dt.dayofyear).mean()
-
+    # Percorre cada data do dataset original
     with alive_bar(len(ds.time)) as bar:
         for i, date in enumerate(ds.time):
+            # export the date value
             this_date = date.values
-            doy = date.dt.dayofyear.item()
+            month = date.dt.month.item()
+            day = date.dt.day.item()
 
-            # Current values
+            # current date
             ds1_current = ds.sel(time=this_date)
             ds2_current = ds2.sel(time=this_date)
 
-            # Normal values using day-of-year
-            try:
-                ds1_nor = ds_norm_doy.sel(dayofyear=doy)
-            except KeyError:
-                ds1_nor = ds_norm.mean(dim='time')
-            
-            try:
-                ds2_nor = ds2_norm_doy.sel(dayofyear=doy)
-            except KeyError:
-                ds2_nor = ds2_norm.mean(dim='time')
+            # Valor normal para aquele dia/mês
+            ds1_nor = ds_norm.sel(time=((ds_norm.time.dt.month == month) & 
+                                        (ds_norm.time.dt.day == day))).isel(time=0)
+            ds2_nor = ds2_norm.sel(time=((ds_norm.time.dt.month == month) & 
+                                        (ds_norm.time.dt.day == day))).isel(time=0)
 
-            # Calculate condition
-            condition = (ds1_current > ds1_nor) & (ds2_current > ds2_nor)
+            # Calculate heatwave condition - FIXED LINE
+            heatwave_condition = ((ds1_current.tmax > ds1_nor.tmax) & 
+                                 (ds2_current.tmin > ds2_nor.tmin))
             
-            # Update only temporal variables
-            for var in temporal_vars:
-                if var in condition.data_vars:
-                    out['greater'].loc[dict(time=this_date)] = condition[var]
+            # Assign only to the heatwave variable - FIXED LINE
+            out['greater'].loc[dict(time=this_date)] = heatwave_condition
             
-            bar()
+            bar() # Update the progress bar
+    return out
 
+def hotdays_opt1(ds, ds_norm):
+    out = ds.copy()
+    out['heatwave'] = xr.zeros_like(ds.greater, dtype=bool)
+
+    # Percorre cada data do dataset original
+    with alive_bar(len(ds.time)) as bar:
+        for i, date in enumerate(ds.time):
+            # Extrai o valor da data
+            this_date = date.values
+            month = date.dt.month.item()
+            day = date.dt.day.item()
+
+            # Valor do dia atual
+            current_val = ds.sel(time=this_date)
+
+            # Valor normal para aquele dia/mês
+            normal_val = ds_norm.sel(time=((ds_norm.time.dt.month == month) & 
+                                        (ds_norm.time.dt.day == day))).isel(time=0)
+
+            # Marca como True se for mais quente que o normal
+            out.loc[dict(time=this_date)] = (current_val > normal_val).astype(int)
+            bar() # Update the progress bar
     return out
 
 def heatwave_opt2(ds:xr.Dataset, n:int):
