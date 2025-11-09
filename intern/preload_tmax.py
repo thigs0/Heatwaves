@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 def main(tmax):
     #tmax is the netcdf temperature that we use
-    print("Preloading tmin file")
+    print("Preloading tmax file")
     tmax = xr.open_dataset(tmax)
 
     #convert types
