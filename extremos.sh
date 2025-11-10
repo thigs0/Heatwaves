@@ -211,6 +211,7 @@ fi
 #Remove trash data
 mv heatwave*.nc output 2>/dev/null
 rm -rf temporary
+rm percent*.nc
 
 # Restaurar stderr se -c estava ativo
 if $C_FLAG; then

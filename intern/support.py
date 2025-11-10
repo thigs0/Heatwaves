@@ -145,8 +145,8 @@ def heatwave_opt4(ds:xr.Dataset):
                             k+=1
                         heat[i] = 1
                         extention[i] = k
-                        i+=k
-                        bar(k) # Update the progress bar
+                        i=k-1
+                        bar(k-1) # Update the progress bar
                     else:
                         i+=1
                         bar() # Update the progress bar
