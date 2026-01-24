@@ -36,7 +36,9 @@ def heatwave(dataset_tmax:xr.Dataset, opt:int, n:int, dataset_tmin=xr.Dataset(),
         
 def hotdays_opt2(ds, ds_norm, ds2, ds2_norm) -> xr.Dataset:
     out = ds.copy()
-    print(ds)
+    out['tmin'] = ds2.tmin
+
+    print(out)
     
     # Initialize heatwave variable with False values
     out['greater'] = xr.zeros_like(ds.tmax, dtype=bool)
@@ -65,8 +67,8 @@ def hotdays_opt2(ds, ds_norm, ds2, ds2_norm) -> xr.Dataset:
             
             # Assign only to the heatwave variable - FIXED LINE
             out['greater'].loc[dict(time=this_date)] = heatwave_condition
-            
             bar() # Update the progress bar
+    print(out)
     return out
 
 def hotdays_opt1(ds, ds_norm):

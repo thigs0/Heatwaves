@@ -46,12 +46,11 @@ function Percentil_max() { # This code calculate the percentil about minimum tem
   ymax=(${year[-1]})
   cdo selyear,${ymin}/${2} $1 heatwave_ref.nc >>/dev/null
   cdo selyear,$(($2 + 1))/${ymax} $1 heatwave_f.nc >>/dev/null #File .nc with temperature at period to avaliate
-  cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
   #creating the percent period of reference
   cdo ydrunpctl,$3,$4 heatwave_ref.nc -ydrunmin,$4 heatwave_ref.nc -ydrunmax,$4 heatwave_ref.nc ./percentmax.nc >>/dev/null
   if ! $C_FLAG; then echo "calculated percentile of maximum temperature"; fi
-  rm heatwave_ref.nc heatwave_f.nc pr_ref.nc
+  #rm heatwave_ref.nc heatwave_f.nc pr_ref.nc
 }
 
 function Percentil_min() { # Calculate the percentil about maximum temperature serie
@@ -71,11 +70,10 @@ function Percentil_min() { # Calculate the percentil about maximum temperature s
   ymax=(${year[-1]})
   cdo selyear,${ymin}/${2} $1 heatwave_ref.nc >>/dev/null
   cdo selyear,$(($2 + 1))/${ymax} $1 heatwave_f.nc >>/dev/null #File .nc with temperature at period to avaliate
-  cdo selyear,${ymin}/${2} $5 pr_ref.nc >>/dev/null
 
   #Calculating percentil
   cdo ydrunpctl,$3,$4 heatwave_ref.nc -ydrunmin,$4 heatwave_ref.nc -ydrunmax,$4 heatwave_ref.nc percentmin.nc >>/dev/null
-  rm heatwave_ref.nc heatwave_f.nc pr_ref.nc
+  #rm heatwave_ref.nc heatwave_f.nc pr_ref.nc
 }
 
 function preload_tmax_tmin() { # This code load file at temporary directory and chanhe some paramns
@@ -211,7 +209,7 @@ fi
 #Remove trash data
 mv heatwave*.nc output 2>/dev/null
 rm -rf temporary
-rm percent*.nc
+#rm percent*.nc
 
 # Restaurar stderr se -c estava ativo
 if $C_FLAG; then

@@ -2,10 +2,10 @@ import pandas as pd
 import sys
 import xarray as xr
 
-def main():
+def main(path):
     """This function make the txt file chenge to netcdf"""
    #p1 is the txt file that we want convert to netcdf
-    df = pd.read_parquet("../dados/input.parquet")
+    df = pd.read_parquet(path)
     #df.columns need be [Tmin, Tmax, Pr, Date, Lat, Lon]
     df.columns = [i.lower() for i in df.columns]
     df["time"] = pd.to_datetime(df["time"])
@@ -15,6 +15,7 @@ def main():
         out = df.drop(columns=df.columns[ df.columns != j ])
         ds = out.to_xarray()
         ds = xr.Dataset(ds)
-        ds.to_netcdf(f"../{j}.nc")
+        ds.to_netcdf(f"{j}.nc")
 if __name__ == "__main__":
-    main()
+    p1 = sys.argv[1]
+    main(p1)
