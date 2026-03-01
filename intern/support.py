@@ -5,41 +5,39 @@ import pandas as pd
 import warnings
 
 def heatwave(dataset_tmax:xr.Dataset, opt:int, n:int, dataset_tmin=xr.Dataset(), percent_tmax=xr.Dataset(), percent_tmin=xr.Dataset(),
-             with_anomaly=False, with_season=False) -> xr.Dataset:
+             yearmin=1900, with_anomaly=False, with_season=False) -> xr.Dataset:
     match opt:
         case 1:
+            #reduce the size to only the interval analized
+            dataset_tmax = dataset_tmax.sel(time = dataset_tmax.time[dataset_tmax.time.dt.year > yearmin])
             greater = hotdays_opt1(dataset_tmax, percent_tmax)
             if with_anomaly:
                 return xr.Dataset()
             else:
                 return heatwave_opt1(greater, n)
-        
         case 2:
-            greater = hotdays_opt2(dataset_tmax, percent_tmax, dataset_tmin, percent_tmin) 
+            #reduce the size to only the interval analized
+            dataset_tmax = dataset_tmax.sel(time = dataset_tmax.time[dataset_tmax.time.dt.year > yearmin])
+            dataset_tmin = dataset_tmin.sel(time = dataset_tmin.time[dataset_tmin.time.dt.year > yearmin])
+            greater = hotdays_opt2(dataset_tmax, percent_tmax, dataset_tmin, percent_tmin)
             if with_anomaly:
                 return heatwave_opt2_with_anomaly(greater, dataset_tmax, percent_tmax, n)
             else:
                 return heatwave_opt2(greater, n)
-
         case 3:
             return xr.Dataset()
-        
         case 4:
             greater = hotdays_opt1(dataset_tmax, percent_tmax)
             if with_anomaly:
                 return xr.Dataset()
             else:
                 return heatwave_opt4(greater)
-        
         case _:
             raise ValueError("Invalid value")
-        
+
 def hotdays_opt2(ds, ds_norm, ds2, ds2_norm) -> xr.Dataset:
     out = ds.copy()
     out['tmin'] = ds2.tmin
-
-    print(out)
-    
     # Initialize heatwave variable with False values
     out['greater'] = xr.zeros_like(ds.tmax, dtype=bool)
 
@@ -56,24 +54,21 @@ def hotdays_opt2(ds, ds_norm, ds2, ds2_norm) -> xr.Dataset:
             ds2_current = ds2.sel(time=this_date)
 
             # Valor normal para aquele dia/mês
-            ds1_nor = ds_norm.sel(time=((ds_norm.time.dt.month == month) & 
+            ds1_nor = ds_norm.sel(time=((ds_norm.time.dt.month == month) &
                                         (ds_norm.time.dt.day == day))).isel(time=0)
-            ds2_nor = ds2_norm.sel(time=((ds_norm.time.dt.month == month) & 
+            ds2_nor = ds2_norm.sel(time=((ds_norm.time.dt.month == month) &
                                         (ds_norm.time.dt.day == day))).isel(time=0)
 
             # Calculate heatwave condition - FIXED LINE
-            heatwave_condition = ((ds1_current.tmax > ds1_nor.tmax) & 
+            heatwave_condition = ((ds1_current.tmax > ds1_nor.tmax) &
                                  (ds2_current.tmin > ds2_nor.tmin))
-            
             # Assign only to the heatwave variable - FIXED LINE
             out['greater'].loc[dict(time=this_date)] = heatwave_condition
             bar() # Update the progress bar
-    print(out)
     return out
 
 def hotdays_opt1(ds, ds_norm):
     out = ds.copy()
-    print(ds)
     out['greater'] = xr.zeros_like(ds.tmax, dtype=bool)
 
     # Percorre cada data do dataset original
@@ -88,7 +83,7 @@ def hotdays_opt1(ds, ds_norm):
             current_val = ds.sel(time=this_date)
 
             # Valor normal para aquele dia/mês
-            normal_val = ds_norm.sel(time=((ds_norm.time.dt.month == month) & 
+            normal_val = ds_norm.sel(time=((ds_norm.time.dt.month == month) &
                                         (ds_norm.time.dt.day == day))).isel(time=0)
 
             out['greater'].loc[dict(time=this_date)] = (current_val["tmax"] > normal_val["tmax"]).astype(int)
@@ -100,7 +95,7 @@ def heatwave_opt2(ds:xr.Dataset, n:int):
     ds = ds.astype(int)
     out = ds.copy()
 
-    # Initialize temporal variables as boolean arrays  
+    # Initialize temporal variables as boolean arrays
     out['heatwave'] = xr.zeros_like(ds.greater, dtype=bool)
 
     # Percorre cada data do dataset original
@@ -119,7 +114,7 @@ def heatwave_opt2(ds:xr.Dataset, n:int):
                     else:
                         i+=1
                         bar() # Update the progress bar
-                out.heatwave.loc[dict(lat=lat, lon=lon)] = heat 
+                out.heatwave.loc[dict(lat=lat, lon=lon)] = heat
     return out
 
 def heatwave_opt4(ds:xr.Dataset):
@@ -127,7 +122,7 @@ def heatwave_opt4(ds:xr.Dataset):
     ds = ds.astype(int)
     out = ds.copy()
 
-    # Initialize temporal variables as boolean arrays  
+    # Initialize temporal variables as boolean arrays
     out['heatwave'] = xr.zeros_like(ds.greater, dtype=bool)
     out['extention'] = xr.zeros_like(ds.greater, dtype=bool)
 
@@ -153,14 +148,14 @@ def heatwave_opt4(ds:xr.Dataset):
                         i+=1
                         bar() # Update the progress bar
                 out.heatwave.loc[dict(lat=lat, lon=lon)] = heat
-                out.extention.loc[dict(lat=lat, lon=lon)] = extention 
+                out.extention.loc[dict(lat=lat, lon=lon)] = extention
     return out
 
 def heatwave_opt1(ds:xr.Dataset, n:int):
     ds = ds.astype(int)
     out = ds.copy()
 
-    # Initialize temporal variables as boolean arrays  
+    # Initialize temporal variables as boolean arrays
     out['heatwave'] = xr.zeros_like(ds.greater, dtype=bool)
 
     len_date = len(ds.time[:-n+1])-1
@@ -178,7 +173,7 @@ def heatwave_opt1(ds:xr.Dataset, n:int):
                     else:
                         i+=1
                         bar() # Update the progress bar
-                out.heatwave.loc[dict(lat=lat, lon=lon)] = heat 
+                out.heatwave.loc[dict(lat=lat, lon=lon)] = heat
     return out
 
 def heatwave_opt2_with_anomaly(ds:xr.Dataset, temperature:xr.Dataset, percent:xr.Dataset, n:int):
@@ -186,7 +181,7 @@ def heatwave_opt2_with_anomaly(ds:xr.Dataset, temperature:xr.Dataset, percent:xr
     ds = ds.astype(int)
     out = ds.copy()
 
-    # Initialize temporal variables as boolean arrays  
+    # Initialize temporal variables as boolean arrays
     out['heatwave'] = xr.zeros_like(ds.greater, dtype=bool)
     out['anomaly_tmax'] = xr.zeros_like(ds.greater, dtype=bool)
     out['anomaly_tmin'] = xr.zeros_like(ds.greater, dtype=bool)
@@ -212,5 +207,5 @@ def heatwave_opt2_with_anomaly(ds:xr.Dataset, temperature:xr.Dataset, percent:xr
                         i+=1
                         bar() # Update the progress bar
                 out.heatwave.loc[dict(lat=lat, lon=lon)] = heat
-                out.anomaly.loc[dict(lat=lat, lon=lon)] = heat 
+                out.anomaly.loc[dict(lat=lat, lon=lon)] = heat
     return out

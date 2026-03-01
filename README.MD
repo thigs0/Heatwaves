@@ -1,18 +1,18 @@
 # Description of code and your functions
 The code may priorize make all necessary calculations in *Python* and *CDO*.
 For python you will need pandas, numpy, scipy, xarray and alive-progress
-All conected by *BASH* and running in Linux systems. 
+All conected by *BASH* and running in Linux systems.
 
 ==LINUX FIRST==
 
 ``` pip install pandas numpy scipy xarray alive-progress pyspark```
 
 ## To run the code
-
-	./extremos.sh netcdf/tmax.nc 1990 90 15 [netcdf/pr.nc] [netcdf/tmin.nc] [netcdf/percenttmax.nc] [netcdf/percenttmin.nc]
-
-All data need be with tmin name to minimum temperature values, tmax name to maximum temperature, lat to latitude values, lon to longitude values and time to 
-datatime values 
+```shell
+	./heatwave.sh netcdf/tmax.nc 1990 95 15 [netcdf/pr.nc] [netcdf/tmin.nc] [netcdf/percenttmax.nc] [netcdf/percenttmin.nc]
+```
+All data need be with tmin name to minimum temperature values, tmax name to maximum temperature, lat to latitude values, lon to longitude values and time to
+datatime values
 the params inside [] are option that need only if the calculus need
 
 - If the time values are in Kelvin, convert automatically to Celsius
@@ -28,11 +28,12 @@ The paramns are:
 4) it's number of days that are used like window calculation
 5) it's the daily precipitation netcdf file, like (1961-2024)
 6) it's the daily minimum temperature netcdf file complete, like (1961-2024)
-7) it's the historic netcdf to construct tmax percent 
+7) it's the historic netcdf to construct tmax percent
 8) it's the historic netcdf to construct tmin percent
 
-
-**The images are saved ar directory "imagens" and the data are saved in directory "dados"**
+```shell
+	./intern/intensity.py
+```
 
 ## ./output
 1. <b> heatwave_opt$set.nc </b> is the file where $ is the option of heatwave, with heatwave data
@@ -50,9 +51,10 @@ The paramns are:
 4. <a href="./intern/heatwave_opt4set.nc.py"> heatwave_opt4set..py </a> open the file in ./intern/heatwave3ormore.py, that create the heatwave files considering heatwaves when has 3 hotdays using maximum temperature
 
 5. <a href="./intern/geirinhas.py">geirinhas.py</a>  calculate the index based at gueirinhas metodology
-6. <a href="./intern/plot_spi.py">plot_spi.py</a> create the graph of spi in html 
+6. <a href="./intern/plot_spi.py">plot_spi.py</a> create the graph of spi in html
 7. <a href="./intern/plot_linear_tmaxtmin_heatwave.py">plot_linear_tmaxtmin_heatwave.py</a> create the graph of heatwave of tmaxtmin heatwaves
 8. <a href="./intern/anomaly.py">anomaly.py</a> create the graph of temperature anomaly of each heatwave
+8. <a href="./intern/intensity.py">intensity.py</a> Calculate the Intensity over heatwaves
 
 <b> Support</b>
 
@@ -65,7 +67,7 @@ The paramns are:
 15. <a href="./intern/preload_tmin.py"> preload_tmin.py</a> Load files and change configuration of minimum temperature data to avoid errors
 
 ## Reference
-Geirinhas, João & Russo, Ana & Libonati, Renata & Sousa, Pedro & Miralles, Diego & Trigo, Ricardo. (2021). <a href="https://iopscience.iop.org/article/10.1088/1748-9326/abe0eb">Recent increasing frequency of compound summer drought and heatwaves in Southeast Brazil. Environmental Research Letters</a>. 16. 10.1088/1748-9326/abe0eb. 
+Geirinhas, João & Russo, Ana & Libonati, Renata & Sousa, Pedro & Miralles, Diego & Trigo, Ricardo. (2021). <a href="https://iopscience.iop.org/article/10.1088/1748-9326/abe0eb">Recent increasing frequency of compound summer drought and heatwaves in Southeast Brazil. Environmental Research Letters</a>. 16. 10.1088/1748-9326/abe0eb.
 
 <a hef="https://www.undrr.org/understanding-disaster-risk/terminology/hips/mh0047#:~:text=It%20defines%20heatwaves%20as%2C%20%E2%80%9Cperiods,WMO%20and%20WHO%2C%202015)."> United Nations Office for Disaster Rist Reduction</a>, Accessed 3 mar 2024
 

@@ -13,8 +13,7 @@ def main(tmax, percentmax):
     tmax = xr.open_dataset(tmax)
     percentmax = xr.open_dataset(percentmax)
 
-    ds = heatwave(dataset_tmax= tmax, percent_tmax=percentmax,
-                  opt=4, n=3) # here the n is ignored
+    ds = heatwave(dataset_tmax= tmax, percent_tmax=percentmax, opt=4, n=3) # here the n is ignored
     ds.to_netcdf('heatwave_opt4set.nc')
     del ds
 
