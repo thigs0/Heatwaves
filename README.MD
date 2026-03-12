@@ -18,6 +18,9 @@ If you don't have the file, pass some else. If is'not necessary, will not be loa
 
 - If the time values are in Kelvin, convert automatically to Celsius
 - If coordenates names are latitude or longitude, change to lat and lon
+- If maximum temperature named like mn2t, change to tmax
+- If minimum temperature named like tas, change to tmin
+- If time variable named like valid_time, change to time
 
 **Output**: The output is a named 'heatwave_opt*set.nc' and * is the option of heatwave calculations
 
