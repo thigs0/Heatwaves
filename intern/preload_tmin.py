@@ -35,7 +35,7 @@ def main(tmin):
         tmin = tmin.rename({'longitude': 'lon'})
     except:
         pass
-     
+
     tmin.tmin.to_netcdf('temporary/temporary_tmin.nc')
     del tmin
     gc.collect()

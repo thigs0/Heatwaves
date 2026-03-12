@@ -35,8 +35,6 @@ def main(tmax):
         tmax = tmax.rename({'longitude': 'lon'})
     except:
         pass
-    
-
 
     tmax.tmax.to_netcdf('temporary/temporary_tmax.nc')
     del tmax
