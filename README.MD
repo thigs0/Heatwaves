@@ -14,6 +14,7 @@ All conected by *BASH* and running in Linux systems.
 All data need be with tmin name to minimum temperature values, tmax name to maximum temperature, lat to latitude values, lon to longitude values and time to
 datatime values
 the params inside [] are option that need only if the calculus need
+If you don't have the file, pass some else. If is'not necessary, will not be loaded
 
 - If the time values are in Kelvin, convert automatically to Celsius
 - If coordenates names are latitude or longitude, change to lat and lon
