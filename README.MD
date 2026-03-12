@@ -1,5 +1,5 @@
 # Description of code and your functions
-The code may priorize make all necessary calculations in *Python* and *CDO*.
+The code may priorize make all necessary calculations in *Python* and <a href="https://code.mpimet.mpg.de/projects/cdo"> CDO </a>.
 For python you will need pandas, numpy, scipy, xarray and alive-progress
 All conected by *BASH* and running in Linux systems.
 
