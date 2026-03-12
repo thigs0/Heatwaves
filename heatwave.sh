@@ -14,7 +14,7 @@
 C_FLAG=false
 MAIN_ARGS=()
 
-# Separar flags dos argumentos principais
+# Separete flags per arguments
 for arg in "$@"; do
     if [[ "$arg" == "-c" ]]; then
         C_FLAG=true
@@ -23,7 +23,7 @@ for arg in "$@"; do
     fi
 done
 
-# Se -c ativado, modo silencioso para comandos, mas mantém a escolha do usuário
+# If -c is active, silence mode
 if $C_FLAG; then
     exec 3>&2  # Salva stderr
     exec 2>/dev/null  # Redireciona stderr para /dev/null
@@ -112,7 +112,7 @@ TMIN_FILE="${MAIN_ARGS[5]:-}"  # Opcional
 TMAX_REF="${MAIN_ARGS[6]:-}"   # Opcional
 TMIN_REF="${MAIN_ARGS[7]:-}"   # Opcional
 
-# SEMPRE mostrar as opções para o usuário escolher, mesmo com -c
+# Even show the user options
 echo "Wich heatwave definition you will considerate?
 		1 -> Consider the OMM definition of heatwve
 		2 -> Consider the OMM definition with mininum temperature
@@ -122,7 +122,7 @@ echo "Wich heatwave definition you will considerate?
 
 read r
 
-# Validar a escolha do usuário
+# Check user choice
 if [[ ! "$r" =~ ^[1-5]$ ]]; then
     echo "Error: Invalid choice. Please select a number between 1 and 5."
     exit 1
@@ -130,12 +130,12 @@ fi
 
 convertKelvin2Celsius $TMAX_FILE
 
-# Converter TMIN apenas se for fornecida e necessária para a opção escolhida
+# If is necessary, convert tmin
 if [[ -n "$TMIN_FILE" && ($r -eq 2 || $r -eq 5) ]]; then
     convertKelvin2Celsius $TMIN_FILE
 fi
 
-mkdir temporary
+mkdir temporary # make a new folder to group temporary files
 
 if [ $r == 1 ]; then
   preload_tmax $TMAX_FILE
@@ -148,7 +148,7 @@ if [ $r == 1 ]; then
     if [ ${tvar} ] > 1; then
       python3 intern/graph_heatwave_region.py temporary/temporary_tmax.nc heatwave_opt1set.nc
     fi
-  else                                                   #if file is separeted in two
+  else #if file is separeted in two
     python3 intern/heatwave_opt1set.py netcdf/tmax.nc $TMAX_REF #Create heatwave considering only tmax
   fi
 
@@ -201,11 +201,11 @@ if [ ! -d output ]; then
   mkdir output
 fi
 #Remove trash data
-#mv heatwave*.nc output 2>/dev/null
-#rm -rf temporary
-#rm percent*.nc
+mv heatwave*.nc output 2>/dev/null
+mv historical*.nc output 2>/dev/null
+mv percent*.nc output 2>/dev/null
+rm -rf temporary
 
-# Restaurar stderr se -c estava ativo
 if $C_FLAG; then
     exec 2>&3
 fi
