@@ -23,7 +23,19 @@ def main(tmax):
         tmax = tmax.rename({'tas': 'tmax'})
     except:
         pass
-    
+    try:
+        tmax = tmax.rename({'mx2t': 'tmax'})
+    except:
+        pass
+    try:
+        tmax = tmax.rename({'latitude': 'lat'})
+    except:
+        pass
+    try:
+        tmax = tmax.rename({'longitude': 'lon'})
+    except:
+        pass
+
     tmax.tmax.to_netcdf('temporary/temporary_tmax.nc')
     del tmax
     gc.collect()

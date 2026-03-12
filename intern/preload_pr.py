@@ -2,7 +2,7 @@ import xarray as xr
 import sys
 import gc
 
-def main(pr): 
+def main(pr):
     print("Preloading pr file")
     pr = xr.open_dataset(pr)
     #convert types

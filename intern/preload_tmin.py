@@ -23,7 +23,19 @@ def main(tmin):
         tmin = tmin.rename({'tas': 'tmin'})
     except:
         pass
-    
+    try:
+        tmin = tmin.rename({'mn2t': 'tmin'})
+    except:
+        pass
+    try:
+        tmin = tmin.rename({'latitude': 'lat'})
+    except:
+        pass
+    try:
+        tmin = tmin.rename({'longitude': 'lon'})
+    except:
+        pass
+
     tmin.tmin.to_netcdf('temporary/temporary_tmin.nc')
     del tmin
     gc.collect()

@@ -21,7 +21,7 @@ def main(pr):
     ds_cal.pr.attrs['units'] = 'mm/day'
     n = len(ds_cal.time.values)
     ds = xclim.indices.standardized_precipitation_index(ds['pr'], pr_cal=ds_cal["pr"],
-            cal_start= f"{ds_cal.time[0].dt.year}-01-01", 
+            cal_start= f"{ds_cal.time[0].dt.year}-01-01",
             cal_end=f"{ds_cal.time[n-1].dt.year}-12-31", freq='MS')
     # add the result to our set of original data
     ds.to_netcdf("spi.nc")
