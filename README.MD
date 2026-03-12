@@ -41,6 +41,8 @@ The paramns are:
 
 ## ./output
 1. <b> heatwave_opt$set.nc </b> is the file where $ is the option of heatwave, with heatwave data
+2. <b> historical_(min|max).nc </b> is the file with old raw data that calculate heatwave index
+3. <b> percent(min|max).nc </b> is the file with climatological model to each variable
 
 ## ./netcdf
 #1. <b> tmax.nc </b> is the tmax temperatura for one latitude and longitude
