@@ -72,7 +72,7 @@ The paramns are:
 14. <a href="./intern/preload_tmax.py"> preload_tmax.py</a> Load files and change configuration of maximum temperature data to avoid errors
 15. <a href="./intern/preload_tmin.py"> preload_tmin.py</a> Load files and change configuration of minimum temperature data to avoid errors
 
-![Example Run](image_url "./example.png")
+![Example Run](image_url "example.png")
 
 
 
