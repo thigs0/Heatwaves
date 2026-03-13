@@ -72,6 +72,12 @@ The paramns are:
 14. <a href="./intern/preload_tmax.py"> preload_tmax.py</a> Load files and change configuration of maximum temperature data to avoid errors
 15. <a href="./intern/preload_tmin.py"> preload_tmin.py</a> Load files and change configuration of minimum temperature data to avoid errors
 
+
+
+
+
+
+
 ## Reference
 Geirinhas, João & Russo, Ana & Libonati, Renata & Sousa, Pedro & Miralles, Diego & Trigo, Ricardo. (2021). <a href="https://iopscience.iop.org/article/10.1088/1748-9326/abe0eb">Recent increasing frequency of compound summer drought and heatwaves in Southeast Brazil. Environmental Research Letters</a>. 16. 10.1088/1748-9326/abe0eb.
 
