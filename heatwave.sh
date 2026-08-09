@@ -122,6 +122,13 @@ echo "Wich heatwave definition you will considerate?
 
 read r
 
+##create python ambient and install requirements
+if [ ! -d "heatwaves" ]; then
+    python3 -m venv heatwaves
+fi
+source heatwaves/bin/activate
+pip install -r requirements.txt
+
 # Check user choice
 if [[ ! "$r" =~ ^[1-5]$ ]]; then
     echo "Error: Invalid choice. Please select a number between 1 and 5."

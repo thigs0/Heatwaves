@@ -1,0 +1,45 @@
+# python ambient (Security)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+#remove all nc files 
+/*.nc
+/*.zip
+
+# Ambiente virtual Python
+heatwaves/
+venv/
+env/
+.venv/
+ENV/
+
+# Bytecode compilado
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribuição / empacotamento
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Cache de instalação
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ambientes de teste / cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Arquivos de configuração de IDE relacionados ao ambiente
+.python-version
